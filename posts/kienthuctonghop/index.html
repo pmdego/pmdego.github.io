@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Tài Liệu tổng hợp | PMD • Notes
+    </title>
+
+    <!-- Preload ảnh cursor để load nhanh -->
+    <link rel="preload" href="/assets/images/cursor-normal-32.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-hover-32.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-normal-48.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-hover-48.png" as="image">
+
+    <!-- CSS theme chính -->
+    <link
+      rel="stylesheet"
+      href="/assets/css/style.css?v="
+    />
+
+    <!-- Thêm CSS cho Portfolio -->
+    <link rel="stylesheet" href="/assets/css/portfolio.css">
+
+    <!-- Fallback minimal nếu theme lỗi -->
+    <style>
+      html, body { background:#0b0b0b; color:#eaeaea; margin:0; padding:0; }
+      body {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                     "Liberation Mono","Courier New", monospace;
+      }
+      main img, .markdown-body img,
+      main svg, .markdown-body svg,
+      main canvas, .markdown-body canvas {
+        max-width:100%; height:auto; display:block;
+      }
+      main, .markdown-body, main h1, main h2, main h3 {
+        overflow-wrap:anywhere; word-break:break-word;
+      }
+      main pre, .markdown-body pre {
+        overflow-x:auto; white-space:pre; -webkit-overflow-scrolling:touch;
+      }
+      main table, .markdown-body table {
+        display:block; width:100%; overflow-x:auto;
+      }
+    </style>
+
+    <script>
+  (function () {
+    function setFav(emoji) {
+      let link = document.querySelector(
+        "link#dynamic-favicon[rel='icon']"
+      );
+      if (!link) {
+        link = document.createElement("link");
+        link.id = "dynamic-favicon";
+        link.rel = "icon";
+        link.type = "image/svg+xml";
+        document.head.appendChild(link);
+      }
+
+      const svg =
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>" +
+        "<text x='50' y='70' text-anchor='middle' font-size='90'>" +
+        emoji +
+        "</text>" +
+        "</svg>";
+
+      // Né cache
+      link.href =
+        "data:image/svg+xml," +
+        encodeURIComponent(svg) +
+        "#v=" +
+        Date.now();
+    }
+
+    function pickEmojiFromH1() {
+      const h1 = document.querySelector("main h1, h1");
+      if (!h1) return null;
+      const txt = h1.textContent || "";
+
+      // Unicode property (browser mới)
+      try {
+        const m = txt.match(/\p{Extended_Pictographic}/u);
+        if (m && m[0]) return m[0];
+      } catch (e) {}
+
+      // Fallback dải thường gặp
+      const m2 = txt.match(
+        /[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}]/u
+      );
+      return m2 ? m2[0] : null;
+    }
+
+    function init() {
+      const emoji = pickEmojiFromH1() || "🛡️";
+      setFav(emoji);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+</script>
+
+  </head>
+
+  <body>
+    <!-- Navbar chỉ hiện khi có show_nav: true -->
+    
+
+    <!-- Nội dung chính -->
+    <main class="page-wrap" style="max-width: 980px; margin: 2rem auto; padding: 0 1rem;">
+      
+
+
+<!-- Breadcrumb -->
+<div class="breadcrumbs">
+  <a href="/">🏠 Home</a>
+  &nbsp;/&nbsp;
+  <a href="/posts/">📝 Posts</a>
+  
+    &nbsp;/&nbsp;<span>Tài Liệu tổng hợp</span>
+  
+</div>
+
+<main>
+  
+    <!-- TOC -->
+    <nav id="toc" class="toc collapsed" aria-expanded="false" aria-controls="toc-body">
+      <div class="toc-head" role="button" aria-expanded="false" tabindex="0">
+        <span class="toc-caret">▸</span>
+        <strong>Contents</strong>
+      </div>
+      <div id="toc-body" class="toc-body"></div>
+    </nav>
+  
+
+  <h1 id="-tổng-hợp-video-và-tài-liệu-học-lập-trình-miễn-phí-bằng-tiếng-việt">📚 Tổng hợp video và tài liệu học lập trình miễn phí bằng tiếng Việt</h1>
+
+<blockquote>
+  <p>Người tổng hợp: <strong>[Trần Minh Sáng]</strong></p>
+</blockquote>
+
+<h2 id="star-history">Star History</h2>
+
+<p><a href="https://www.star-history.com/#tmsanghoclaptrinh/tai-lieu-lap-trinh-tieng-viet-mien-phi&amp;Date"><img src="https://api.star-history.com/svg?repos=tmsanghoclaptrinh/tai-lieu-lap-trinh-tieng-viet-mien-phi&amp;type=Date" alt="Star History Chart" /></a></p>
+
+<h2 id="android">Android</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PL6aoXCbsHwIayYCo9aDuzZ3dMC9oShs1u">Tự học Lập Trình Android từ A đến Z</a> - Kênh Công nghệ</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1wDeQMvegg_OZQfaXcbqOQh">Lập trình Android cơ bản</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL5uqQAwS_KDjAgLGiaCakwJV1f4vRnTLS">Lập trình Android A-Z</a> - Khoa Phạm</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLpgD-OxlvlqFNyyaFlan2-WTtSaBkWllm">Học Android + Kotlin cơ bản</a> - Xin chào, mình là Sữa</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLFPekWzEN9zMPU_se3HtbdmPDvXnX7V80">Lập Trình Android Rest API</a> - Nam Nguyen Poly Lab</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLbhheUORMqP2_2bdQ3QYnkst8TFldm3p3">Android app bán hàng online</a> - NH Android</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE1qPKuGSJaAeaWy8eRkuDjrqm4Rhm-cx">Android Cơ Bản</a> - thân triệu</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLPt6-BtUI22qf3KE1V1PyAm1v8M2qqwL5">Android với kolin cho người mới</a> - Gà Lại Lập Trình</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLwJr0JSP7i8AU_esH4BC0NDz_m_yLV4PW">Lập trình Android - Android Studio</a> - XuanThuLab</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLn9lhDYvf_3FDMIcSTSuXZIAB1NJuPuaS">Lập trình Android cơ bản - v2022</a> - Anh Nguyen Ngoc</li>
+</ul>
+
+<h2 id="angular">Angular</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLRhlTlpDUWswOJnLxzotd7MgqaRrBlZOG">Angular căn bản 2023</a> - TEDU</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLMTyi4Bfd5pW73uXw-6jgRxDwdPYqwk0r">100 Days Of Angular (from Angular Vietnam)</a> - Angular Vietnam</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLnRJxWEhhmzrta5bu4gJsZX_kdDff3Y4R">Khóa học Angular Mới Nhất 2024</a> - Ninedev</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLFWDoeAHRLTYaOhywzqEOwYk9sCVbIBB-">Angular 16 - 2023</a> - Lửng Code</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLiNjao7yG417iy0SwSuaGDZ7GBJs654ME">Angular 12 - Hướng dẫn từ căn bản</a> - Code là Ghiền</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLkY6Xj8Sg8-uBQaBU8wMLo2CrFkE-9VIZ">Tự học Angular 2020</a> - CodersX</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLlahAO-uyDzJ2tRFJ8hFkiPf6xuSg9IQa">Học Angular 8+ qua các ví dụ thực tế</a> - TechMaster Vietnam</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLzrVYRai0riTA1m7Dasg8eraBr6R9nFgC">Angular 4 Cơ Bản</a> - Khoa Phạm</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLRhlTlpDUWsw70vZAkJgALJ1yhgYsqDGx">AngularJS căn bản cho người mới bắt đầu</a> - TEDU</li>
+</ul>
+
+<h2 id="assembly">Assembly</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLDYXQL9eThN7o1fsQIEn40eTiJCZTFVoc">Asembly, lập trình hợp ngữ trên emu 8086</a> - Huy Init</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL_5qWES7xEtCt5z3Fi4rKh71xBKSXzNzv">Lập trình Assembly</a> - Ky Nguyen IoT</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLqNgXeR4XrjBgFcjPV46Nb2k4D23alTK_">Assembly - Lập trình hợp ngữ</a> - KienThucTin</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE9xJNSB3lTFBf2zj0Mp4gBhGqSDJxj0z">Lập Trình ASSEMBLY ARM</a> - HuLa Embedded</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLGZ_RWetU5HJLQmSNExog6Wiws-tCDxh0">Lập Trình ARM Assembly</a> - Lập Trình Nhúng A-Z</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLBlxAM4UiXxQ2Vz7C-z1voTjDmsRqEEd1">Lập trình hợp ngữ Assembly 8051</a> - Vũ Minh Đức</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLGZ_RWetU5HInf6eYocQXXAaikHbvZI81">Lập Trình x86 Assembly</a> - Lập Trình Nhúng A-Z</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL9sn2M__GrF--BchVjp9msnEniq3hWw1k">Lập trình hợp ngữ</a> - K.Huynh.</li>
+</ul>
+
+<h2 id="aspnet">ASP.NET</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLRhlTlpDUWsxSup77UnO2pWEkr4ahTohJ">Lập trình ASP.NET MVC Core cơ bản</a> - TEDU</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLRhlTlpDUWsyN_FiVQrDWMtHix_E2A_UD">Làm dự án với ASP.NET Core 3.1</a> - TEDU</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE5Bje814fYbhdwSHiHN9rlwJlwJ2YD3t">ASP.NET Core Web API</a> - HIENLTH Channel</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLiNjao7yG415y_J0G21QUc40akV2vRntP">C.51 - .NET Core - Angular 12 - Quản Lý Nhà Hàng</a> - Code là Ghiền</li>
+  <li><a href="https://www.youtube.com/watch?v=hNoCIW4iM10">Xây dựng Backend ứng dụng chứng khoán với ASP .NET Core 7 Api và Websocket</a> - Nguyen Duc Hoang</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLwJr0JSP7i8DXGzj8NgnhOApBMRhWD4J-">Lập trình ASP.NET MVC Core</a> - XuanThuLab</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE5Bje814fYbtRxvDgmWJ6fUpIZXtbNrb">Website Thương mại Điện tử với ASP.NET Core MVC</a> - HIENLTH Channel</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLWTu87GngvNzYGOXJnXQwlkdhV6_RWs1b">Web bán hàng ASP.NET Core 6 to 8 EF MVC</a> - Hiếu Tutorial with live project</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLRhlTlpDUWsyP9PB1yrhNAYI7LC6yr4tZ">Xây dựng ứng dụng web với ASP.NET Core</a> - TEDU</li>
+</ul>
+
+<h2 id="autoit">AutoIt</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLRqrlsp_0RPWgxqRv5vlXFFpa3s4VA7zZ">Học lập trình AutoIt từ cơ bản đến nâng cao</a> - J2TEAM</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLYi1bpA-AvSC7cGGZTTwLXP4azlMaUVKN">Học AutoIT</a> - nghịch máy tính</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLNeDQQ_ukvRpn7NfdLvtQ9PgVJfkNEsAr">AutoIT - Cách làm Auto Chuột và Bàn Phím</a> - LeeSai</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLAFIcN_lkOfDP78ug2IhgO0heMJ9N2Kxl">Học lập trình Auto game bằng AutoIT</a> - LongHai Auto</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLNeDQQ_ukvRrPcOXOQW47aalcFM9T8wIw">Học Cheat Engine với AutoIT</a> - LeeSai</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLlhlxkw8o0Ga8Vg3Sw5iXHubFxoOvV6aq">Auto Game Tutorial</a> - Tool By Autoit</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLMz2PqxT4j96uqILfWfypxsUPz9UiZZOM">Học AutoIT - Auto game BoomOnline</a> - Triển IS Official</li>
+</ul>
+
+<h2 id="bashshell">Bash/Shell</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLcW6QFb7l0G7ukw6LBcPJbvxbFhgfX9-S">Lập trình Bash Shell Script cơ bản</a> - Curry</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL1HxRSJMOMPKOJhefnyfYLICczYTiUGaK">SHELL/BASH</a> - Toan Nguyen</li>
+</ul>
+
+<h2 id="c">C</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLux-_phi0Rz2TB5D16sJzy3MgOht3IlND">Ngôn Ngữ Lập Trình C</a> - 28tech</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLyxSzL3F7487Nh-ib25lcLEzhL5mgZkFJ">Lập trình C</a> - TITV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE1qPKuGSJaBq4VFzTYrhzCiPvCoI8JDv">Học lập trình C</a> - thân triệu</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLyiioioEJSxHr5X8RNY3QXUGcjzeZeI7l">Ngôn Ngữ Lập Trình C</a> - Dạy Nhau Học</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLzQuu4-Qxlh7lfDpA2lhuBHMNMskLE2QZ">Lập trình C cho người mới bắt đầu học lập trình</a> - Học Công Nghệ</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLZEIt444jqpAEl0D3W17WDS3ZtGbHIxF3">Học lập trình C cơ bản</a> - Son Nguyen</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLQj93CJe0N72nRYDYEdVpV3ZzGHMJvgqt">Nhập môn lập trình C cơ bản</a> - Đỗ Phúc Hảo</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Lập Trình C</td>
+          <td>Xâu Ký Tự</td>
+          <td>Chuỗi](https://www.youtube.com/playlist?list=PLux-_phi0Rz3XyMk0JHqeN2DM69XDAyyo) - 28tech</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLdgLBTCcFWkfWhf3qSPX-pNGyLOj8IA3w">Ngôn ngữ lập trình C-GV. Nguyễn Văn Phúc</a> - CCE- eLEARN</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Ngôn Ngữ Lập Trình C</td>
+          <td>IUH](https://www.youtube.com/playlist?list=PLOWHQCkFdTueoPoil-FTma3-q-_uxsvhR) - Jerry Thắng</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLh91SaQgRYnpj1GqVmVMq4acSAHtSKKwR">Học lập trình C cho người mới bắt đầu (2019)</a> - Lập Trình Không Khó</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL6h8VcmH2PuJzGN8UFhMAoAsPcHg2uepd">Lập Trình C Từ Cơ Bản Đến Nâng Cao</a> - Full House</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLayYhLZuuO9t9F8tIKR5RE7HQbDwNtnSV">Nhập môn LẬP TRÌNH CĂN BẢN với C</a> - giáo.làng</li>
+</ul>
+
+<h2 id="c-1">C++</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLqfkD788zZGCmOyQaymJv4G-au94QqBLj">LẬP TRÌNH C++ TỪ CƠ BẢN ĐẾN NÂNG CAO</a> - Tờ Mờ Sáng học Lập trình</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Lập trình C++ cơ bản 2023</td>
+          <td>Tự học lập trình C++ siêu dễ hiểu cho người mới](https://www.youtube.com/playlist?list=PLPt6-BtUI22rZ-lB276VBY85mUNeIFJf5) - Gà Lại Lập Trình</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLux-_phi0Rz0Hq9fDP4TlOulBl8APKp79">Ngôn Ngữ Lập trình C++</a> - 28tech</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL_-VfJajZj0Uo72G_6tSY4NRLpmffeXSA">Lập trình C++ từ cơ bản tới nâng cao</a> - F8 Official</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1xagFyyQPRcppjFKMQ7lvJM">Lập trình C++ cơ bản - HowKteam</a> - K team</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Học C++ cơ bản</td>
+          <td>Học lập trình C++ cơ bản](https://www.youtube.com/playlist?list=PLZEIt444jqpD6NUtMg5X6Y3T4lYqcudO9) - Son Nguyen</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE1qPKuGSJaB3x2P8vAob9V1BIEp9VYwp">Học lập trình C++ (CŨ Cmnr)</a> - thân triệu</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLh91SaQgRYnp-NC3WnFDMWQV40a6m61Hr">Học lập trình C++ cho người mới bắt đầu</a> - Lập Trình Không Khó</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLzQuu4-Qxlh6xm5_uswCkfkudKs00dsNK">Khóa học Lập trình C++ từ cơ bản đến nâng cao</a> - Học Công Nghệ</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLimFJKGsbn1lG2-vNW57FyESDlT-_F2QQ">Lập trình căn bản C/C++</a> - Thien Tam Nguyen</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLR7NDiX0QsfQQ2iFXsXepwH46wf3D4Y4C">Lập Trình Game C++ SDL</a> - Phát Triển Phần Mềm 123A-Z</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLjnaYcKy3HzOq4SkNVvXQ1FaXk9QlEkaq">Lập trình C++ từ cơ bản tới nâng cao</a> - Minh Quang</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE1qPKuGSJaD7sejCSC8ivSueeesNFyov">Khoá học lập trình C++ từ cơ bản đến nâng cao</a> - thân triệu</li>
+</ul>
+
+<h2 id="c-2">C#</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1wUj15ea6W0A-TtDOrWWSRK">Lập trình C# cơ bản</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE1qPKuGSJaANYwZJweIuzceWHCJI8mnE">Học Lập Trình C# Cơ Bản</a> - thân triệu</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLwJr0JSP7i8BERdErX9Ird67xTflZkxb-">LẬP TRÌNH C#</a> - XuanThuLab</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1y5jmklzilr2W2LZiltk6bU">Khóa học lập trình C# nâng cao</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1ywgHcDF2aB8YBxwtj1_Rjk">Lập trình WPF cơ bản</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1y2T7yK--YZJHCsU7LZVzBS">Lập trình C# Winform cơ bản</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1yCEzvLavt8jD4daqpejzwN">Lập trình game Caro với C# Winform</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1zRgaWBcC__Bnt5AOSRfU71">Lập trình hướng đối tượng trong C#</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1xfA6027EDgEqUp79XRft5I">Lập trình Key logger với C# Console Application</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1xnPhBJHjM0A8TEBBcGCTsf">Lập trình phần mềm Quản lý quán cafe C# Winform</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1ys_UxBqlKvdm6mVs1sL9T2">Lập trình Selenium với C#</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1zfGzpSGQN7CUoHKS6OQbJc">Lập trình ứng dụng Lập Lịch với C# Winform</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1w4-G4wujhFVZGTlFkooCck">HttpRequest - Crawl data từ website</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLm5N2Ku5IP9eZPS20m8AEpdzYNB-lQ7Dp">Hướng dẫn code Game Server Basic &amp; Game Client</a> - Code Phủi</li>
+</ul>
+
+<h2 id="cấu-trúc-dữ-liệu-và-giải-thuật">Cấu trúc dữ liệu và Giải thuật</h2>
+
+<p><em>Chỉ cần mình repo dưới đây của tôi là đủ vì trong repo này tôi đã tổng hợp toàn bộ tài liệu bao gồm cả bài viết và video kể cả tiếng Việt lẫn tiếng Anh, sắp xếp theo từng cấu trúc dữ liệu và từng thuật toán rồi</em>
+👇👇👇</p>
+
+<ul>
+  <li><a href="https://github.com/tmsanghoclaptrinh/tmsang-hoc-thuat-toan">Danh sách những tài liệu hay về Thuật toán và Lập trình thi đấu</a> - Tờ Mờ Sáng học Lập trình</li>
+</ul>
+
+<h2 id="dart">Dart</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLRoAKls-7kksChE3OhiE2iAeCa7h1kk5k">Lập trình Dart</a> - Migolab</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Lập trình ngôn ngữ Dart</td>
+          <td>Flutter cơ bản](https://www.youtube.com/playlist?list=PLRnNjVSYDePhLyD_bKgQnEGyL6R2-fKU1) - Tùng Sugar</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLanHRxSQZoQEs0ApO55id4KGyXUjPReQA">Lập trình Dart</a> - Coder Studio</li>
+</ul>
+
+<h2 id="expressjs">ExpressJS</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PL_-VfJajZj0VatBpaXkEHK_UPHL7dW6I3">NodeJS &amp; ExpressJS</a> - F8 Official</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLncHg6Kn2JT6E38Z3kit9Hnif1xC_9VqI">Khóa học Fullstack SERN (SQL, Express.js, React.js, Node.js)</a> - Hỏi Dân IT</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL_QEvEi9neNSOGrmYOZSYFk9DpYr-Zd9p">MERN Stack (MongoDB, Express, React, Node.js)- Lập trình web bán hàng fullstack</a> - Lập trình thật dễ</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLodO7Gi1F7R1GMefX_44suLAaXnaNYMyC">ExpressJS &amp; NodeJS - Xây dựng hệ thống server chuẩn RESTFUL, xác thực phân quyền làm blog cá nhân</a> - Nodemy</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLncHg6Kn2JT734qFpgJeSfFR0mMOklC_3">UDEMY - Backend RESTFul Server với Node.JS và Express (SQL/MongoDB)</a> - Hỏi Dân IT</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLRhlTlpDUWsz4IwOpkEmtgwAom3Puw8rx">Khóa học Xây dựng Rest API với Nodejs, Express và MongoDB</a> - TEDU</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[[FULL STACK] MERN PRO • Học lập trình Front-end + Back-end</td>
+          <td>Làm dự án thực tế Trello kéo thả](https://www.youtube.com/playlist?list=PLP6tw4Zpj-RJP2-YrhtkWqObMQ-AA4TDy) - TrungQuanDev</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLwRuTV6YR6x1_CzgvKEDEPH1Czl6Mmu6h">React Native EventHub Fullstack với NodeJS ExpressJS MongoDB</a> - Đào Quang</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLwJIrGynFq9BZto5VvKw7OEDNxN6plq_3">Học Nodejs cùng F8</a> - Tech Mely</li>
+</ul>
+
+<h2 id="flutter">Flutter</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PL3Ob3F0T-08brnWfs8np2ROjICeT-Pr6T">Tự học lập trình Flutter 2023</a> - TinCoder</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLyxSzL3F7484qhNw1K08o8kDn8ecCpA_j">Lập trình Flutter - thiết bị di động</a> - TITV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355AsxyLjGVkpOmN8DUbcPdIBv">Lập trình di động với Flutter</a> - ZendVN - Học Lập Trình Online</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE1qPKuGSJaAmSo-tC02ugcyttOcsK7C9">Flutter Từ Cơ Bản Đến Nâng Cao 2024 - 2025</a> - thân triệu</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLZqHbMxF8mzbcMAjOtClkRcEIkhvV3ZtL">Lập trình di động Flutter (Mobile Development Flutter)</a> - Dummy Fresher</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLRhlTlpDUWsxWhGA4jTr0oGeNs7xYyDPW">Lập trình di động với Flutter căn bản</a> - TEDU</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Flutter Tutorial 2021 for Beginners: English App</td>
+          <td>Flutter Lab](https://www.youtube.com/playlist?list=PLFcgubjtcw5U-Y6z1gpR02ebF-jyLoyga) - 200Lab</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLFDupNa8166hj4TEZcq3_za4GirSiawzN">Xây dựng ứng dụng Flutter thực tế.</a> - Chàng Dev Mobile</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLWBrqglnjNl3DzS2RHds5KlanGqQ1uLNQ">Tự học Flutter 2020</a> - Nguyen Duc Hoang</li>
+</ul>
+
+<h2 id="git">Git</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/watch?v=O5uT6p6VWjY">Cách sử dụng Git trong THỰC TẾ</a> - Ông Dev</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLkY6Xj8Sg8-viFVtaVps_h_Emi2wQyE7q">Git - from Zero to Hero</a> - CodersX</li>
+  <li><a href="https://www.youtube.com/watch?v=1JuYQgpbrW0">Từ gà tới pro Git và Github trong 20 phút - Tự học Git siêu tốc</a> - Phạm Huy Hoàng (toidicodedao)</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLyxSzL3F7485Xgn7novgNxnou8QU6i485">Học Git và Github</a> - TITV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLncHg6Kn2JT6nWS9MRjSnt6Z-9Rj0pAlo">Git Siêu Căn Bản Cho Người Mới Bắt Đầu Từ Z Đến A với Hỏi Dân IT</a> - Hỏi Dân IT</li>
+  <li><a href="https://www.youtube.com/watch?v=vQgcl8VouLU">Tóm tắt toàn diện về việc sử dụng Git và quy trình làm việc của GitFlow và sếp yêu cầu tôi phải học</a> - Tips Javascript</li>
+</ul>
+
+<h2 id="go">Go</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLOsM_3jFFQRnzp7jWU3WLmQ1sF4IX45zr">Lập trình Go cơ bản</a> - Việt Trần</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL0Pnqmz-onB5Xk2o46BpvGHa-c8Toe0YP">Go - Con đường lập trình</a> - Tips Golang</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLVDJsRQrTUz5icsxSfKdymhghOtLNFn-k">Lập trình Golang</a> - Code4Func</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLw-L1SGSvTEco7QvKTEd39wrMoTCPNUuN">Golang cơ bản - Playlist</a> - Yuh lập trình viên</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLOsM_3jFFQRl3tAqDVU-nPJOHBfXJVnaM">Lập Trình REST API cơ bản với Golang</a> - Việt Trần</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLVDJsRQrTUz4bQDHCElBG2AsJzCwonqKs">Golang thực chiến cho người mới</a> - Code4Func</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLw0w5s5b9NK6qiL9Xzki-mGbq_V8dBQkY">Course - Go Backend Architecture</a> - Tips Javascript</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLC4c48H3oDRwlxVzOv2L8CXF7tZmtPHkn">Tự học Golang trong 5 giờ. Học xong kiếm lương ngàn đô!</a> - The Funzy Dev</li>
+</ul>
+
+<h2 id="html-css">HTML, CSS</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PL_-VfJajZj0U9nEXa4qyfB4U5ZIYCMPlz">HTML, CSS từ Zero Tới Hero</a> - F8 Official</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLPt6-BtUI22oveeGAyckbAXRSmTBGLZP4">HTML, CSS cơ bản dễ hiểu- học lập trình online miễn phí</a> - Gà Lại Lập Trình</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLl4nkmb3a8w135_M4YRPzYD9_6tERz3ce">HTML Cơ Bản</a> - Thạch Phạm</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLl4nkmb3a8w1cnIhegAj5_mE8w_mbYvY4">CSS Cơ Bản</a> - Thạch Phạm</li>
+</ul>
+
+<h2 id="java">Java</h2>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Lập trình java</td>
+          <td>Tự học java siêu tốc](https://www.youtube.com/playlist?list=PLPt6-BtUI22rxpe6PZc5H6XAgPusA6fDQ) - Gà Lại Lập Trình</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLncHg6Kn2JT5EVkhKoJmzOytHY39Mrf_o">Tự Học Java Core Từ A tới Z Dành cho Beginners</a> - Hỏi Dân IT</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLyxSzL3F748401hWFgJ8gKMnN6MM8QQ7F">Lập trình Java</a> - TITV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1yGrOutFR03OZoqm91TSsvs">Khóa học lập trình Java cơ bản đến hướng đối tượng</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355Av6u60DTCvrUe6aXror_bdE">Tự học Lập trình JAVA</a> - ZendVN</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE1qPKuGSJaA6-6So-knCgNNq3vNbCRD6">Học Lập trình Java với Netbeans IDE</a> - thân triệu</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLsfLgp1K1xQ53rzo7vo2dKamBu0bj7lkv">Khóa học Java Web Servlet/Jsp</a> - JMaster IO</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL2xsxmVse9IaxzE8Mght4CFltGOqcG6FC">Khóa học lập trình Java Spring boot 3 miễn phí cho người mới (2024)</a> - Devteria</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLmGP0M1IXtjXnqg-GdVmLZcinnt6aXvW3">Khóa học Java Core</a> - Lê Vũ Nguyên Vlog</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLsfLgp1K1xQ4ukX-Y7w5i76eJkApL641w">Khóa Học Java Cơ Bản</a> - JMaster IO</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLsfLgp1K1xQ51TV6pCyS9yNQvstVk_le_">Khóa học Java Nâng Cao (Java EE)</a> - JMaster IO</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLAv1wIkQKlEt3RIZuS50MKOZwxLrSyR-c">Tự học Java cho người mới bắt đầu 2025</a> - Tập Làm Mentor</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLMPBVRu4TjAxXA5KuqKFU7gwGiucyif_r">Khoá Học Java Nâng Cao</a> - Trần Văn Điệp Official</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLPCCr-MyxGncORR0AX73cVlz_WGQhKn4e">Khóa học lập trình Backend Java Spring(28tech)</a> - khangmoihocit</li>
+</ul>
+
+<h2 id="javascript">JavaScript</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PL_-VfJajZj0VgpFpEVFzS5Z-lkXtBe-x5">Javascript Cơ Bản</a> - F8 Official</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLPt6-BtUI22pYwpfmkP4EuJkf6GRe63KU">JavaScript siêu tốc - Khóa học lập trình JavaScript từ cơ bản đến nâng cao</a> - Gà Lại Lập Trình</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLncHg6Kn2JT5dfQqpVtfNYvv3EBVHHVKo">Tự Học Javascript Cơ Bản Từ A đến Z Cho Người Mới Bắt Đầu với Hỏi Dân IT</a> - Hỏi Dân IT</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLwJIrGynFq9APduetgi3l9xehOCZCTZEG">Học Javascript cùng F8</a> - Tech Mely</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLqQ6Lvascx2tbLuhCg3E1nC1qcHrckpue">Học JavaScript</a> - HoleTex</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLq3KxntIWWrJ-YMciMrAqgXWjZIJyje1b">Cafedev - Series tự học Javascript từ cơ bản tới nâng cao</a> - cafedev</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE1qPKuGSJaDd2AiY_FkSJ2TVyuDal_k8">Học JavaScript</a> - thân triệu</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLZdbOLxIxNPCw1ljJRlpBTEFtbNPpvKsP">Tutorial học Javascript cơ bản thông qua dự án</a> - Thầy Hoàng JS (phecode)</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLeS7aZkL6GOtpuqMKVTfS37RNTlkolLCk">🔥 Javascript cho người mới bắt đầu 🚀</a> - Easy Frontend</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL_QEvEi9neNS1rdD8jeQR0xP0EZEiSELT">Khóa học Javascript siêu dễ 2023 - Lập trình thật dễ</a> - Lập trình thật dễ</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355AvAl13CUVcVvWu0hOZnpfW8">Tự học Javascript - Lập trình Javascript</a> - ZendVN</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLncHg6Kn2JT4eGJ__iQv6BrvL_YnZLHyX">Tự Học JavaScript Nâng Cao -  Modern JavaScript Từ A đến Z Cho Beginners</a> - Hỏi Dân IT</li>
+</ul>
+
+<h2 id="jquery">jQuery</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLRhlTlpDUWsyAGY7FDGSndEhOD3F2Ruhm">Lập trình jQuery từ căn bản đến nâng cao</a> - TEDU</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLepCFdNQOPNfY15_XAp-cRN3XrKYCvT-h">Tự Học JQuery</a> - T.A.N</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLuEp4OGUFN9s2Lw4msL-5xevemYEPcLCS">Học jQuery từ cơ bản đến nâng cao</a> - Học online</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL75xdq9Y-GaQly0pFP2pFO8xYYfLQXjtG">Học jQuery cơ bản</a> - CiOne eLearning</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLttNL2ipMblsb9w03TUDAInwnH-bXaTft">Khóa Học Lập Trình Jquery Với Project Thực Tế</a> - Coding Is Life</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLJz8fm2GRwfX6F-Ed8BFH7NH5K5Z4b02f">Học Jquery</a> - Tiến Nguyễn</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLJz8fm2GRwfX7ZbZGuOSpsdQ1BBdzsPeN">Tự học Jquery</a> - Tiến Nguyễn</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLjjB_k3ljmLRu_Xvtq7pxOEhgikS6xonm">Học jQuery từ cơ bản đến nâng cao</a> - Ngọc Hoàng IT</li>
+</ul>
+
+<h2 id="kotlin">Kotlin</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLpgD-OxlvlqFNyyaFlan2-WTtSaBkWllm">Học Android + Kotlin cơ bản</a> - Xin chào, mình là Sữa</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLPt6-BtUI22qf3KE1V1PyAm1v8M2qqwL5">Android với kolin cho người mới</a> - Gà Lại Lập Trình</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLzrVYRai0riRFcvx8VYTF7fx4hXbd_nhU">Lập trình Android với Kotlin full tại Khoa Phạm</a> - Khoa Phạm</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLn9lhDYvf_3E_5JZ-1jlk67o9101Lu9N6">Lập trình Kotlin từ cơ bản đến nâng cao</a> - Anh Nguyen Ngoc</li>
+</ul>
+
+<h2 id="machine-learning">Machine Learning</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLZEIt444jqpBPoqtW2ARJp9ICnF3c7vJC">Khóa tự học machine learning cơ bản</a> - Son Nguyen</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLaKukjQCR56ZRh2cAkweftiZCF2sTg11_">Tự học Machine Learning</a> - Thân Quang Khoát</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1zLDVHXW_YUJxhxBFap-vm_">Lập trình Machine learning cơ bản với Python</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLu-LVHS6JzYjoUuPAwcE9sff2NMrEH6KD">Machine Learning Cơ Bản</a> - Học Lập Trình cùng Phát</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLpDNYPX7w1RYeDSr3q0EJA978jjuMz4TX">Machine learning cơ bản (Học máy thống kê)</a> - Bài Học 10 Phút</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLDpRz2wA0qZzTcDLeXP5PSCfmQ96l9-Qr">Machine learning vietsub</a> - Lân ở Đức</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLsWjY--3QXFWE1Nk6erXuTSf3QLC161pm">Machine Learning</a> - Son Tran</li>
+</ul>
+
+<h2 id="mongodb">MongoDB</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355Aug0rwKfb6v96mlYrwOw7XV">Tự học NoSQL - MongoDB</a> - ZendVN</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLU4OBh9yHE94QAav7qIuaTtH9-pq39We8">Mongo DB cơ bản</a> - RHP Team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLkY6Xj8Sg8-vgHI_wNWPHKdiRwlgQXaTR">MongoDB 2020</a> - CodersX</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLP6tw4Zpj-RIMgUPYxhLBVCpaBs94D73V">Thực chiến Back-end NodeJS + MongoDB</a> - TrungQuanDev</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLimFJKGsbn1lQlDQW3A5yb2CdVJ8MqqG8">Học lập trình Web BackEnd NodeJS và MongoDB thực chiến</a> - Thien Tam Nguyen</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLEnECmpTzvQO-1tEWazRmPNV02vkUhU0R">Khóa học lập trình backend Nodejs và MongoDB</a> - Kênh Tổng Hợp Source Code Website</li>
+  <li><a href="https://www.youtube.com/watch?v=8Nx7cdwT86c">Học MongoDB trọn vẹn trong 1 giờ 30 phút</a> - Trần Quốc Huy</li>
+</ul>
+
+<h2 id="mysql">MySQL</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLoI3zgRgTJKbmTPE2em22aqed3412CO17">Học MySQL, học Database</a> - Nguyễn Danh Tú</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLyxSzL3F7487f2BrlHKg87WlUEennWOKu">Học SQL (sử dụng MySQL)</a> - TITV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLDYXQL9eThN4fvrP8J0ASHnxSKJFtkU-Q">Học nhanh cơ sở dữ liệu (trên Mysql Workbench)</a> - Huy Init</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE1qPKuGSJaDkQQB5vK7t7-PRIVjtqeHB">Học SQL Cơ Bản</a> - thân triệu</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL01fPqVNMdrmtcb_Yui_Oh23X_3laoZoO">Tự Học SQL cùng Vịt - Khóa Cơ Bản cho Người Mới Bắt Đầu</a> - Vịt làm Data</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLmGP0M1IXtjULXD1KUAf7Snkq9O0RMsYT">Khóa học cơ sở dữ liệu Mysql</a> - Lê Vũ Nguyên Vlog</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL88QwC-jiH9ByYqO0mVStNEHB6QT24yx1">Khoá học PHP &amp; MYSQL bài bản từ A-Z</a> - Hienu</li>
+  <li><a href="https://www.youtube.com/watch?v=TslBGnENTFw">Hiểu toàn bộ MySQL Database trong 1 giờ 42 phút</a> - Trần Quốc Huy</li>
+</ul>
+
+<h2 id="nextjs">Next.js</h2>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[[2024] Học Next.js 14 miễn phí</td>
+          <td>Khóa học NextJs TypeScript siêu chi tiết</td>
+          <td>Được Dev](https://www.youtube.com/playlist?list=PLFfVmM19UNqn1ZIWvxn1artfz-C6dgAFb) - Được Dev</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Tự Học Next.JS Cơ Bản (với React và TypeScript)</td>
+          <td>Hỏi Dân IT](https://www.youtube.com/playlist?list=PLncHg6Kn2JT6zw4JiFOE1z90ghnyrFl5B) - Hỏi Dân IT</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLeS7aZkL6GOuMvDYcyW9VVLCvKnNhm4It">NextJS cơ bản 🎉</a> - Easy Frontend</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355AvWAQv4or-RE2RAFFXaI3Jz">Lập trình NextJS</a> - ZendVN - Học Lập Trình Online</li>
+</ul>
+
+<h2 id="nodejs">NodeJS</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLncHg6Kn2JT4smWdJceM0bDg4YUF3yqLu">Tự Học Node.JS Cơ Bản Từ A Đến Z Cho Người Mới Bắt Đầu</a> - Hỏi Dân IT</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL_-VfJajZj0VatBpaXkEHK_UPHL7dW6I3">NodeJS &amp; ExpressJS</a> - F8 Official</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLqnlyu33Xy-6g7IqU5-3BXOfewcJKoL08">Khóa học NodeJs trọn bộ</a> - TK Vlogs</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLP6tw4Zpj-RIMgUPYxhLBVCpaBs94D73V">Thực chiến Back-end NodeJS + MongoDB</a> - TrungQuanDev</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLwJIrGynFq9BZto5VvKw7OEDNxN6plq_3">Học Nodejs cùng F8</a> - Tech Mely</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLWBrqglnjNl271vpuIiKZtn-xrAZcX92a">Xây dựng Backend ứng dụng ShopApp với NodeJS, MySQL, Google Firebase</a> - Nguyen Duc Hoang</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLnRJxWEhhmzrN03mUHESraIva5Ppi1FaG">NodeJS Mới Nhất 2024</a> - Ninedev</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLncHg6Kn2JT6E38Z3kit9Hnif1xC_9VqI">Khóa học Fullstack SERN (SQL, Express.js, React.js, Node.js) Web Developer</a> - Hỏi Dân IT</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLw0w5s5b9NK4ucXizOF-eKAXKvn9ruCw8">Course - Node.js Backend Architecture</a> - Tips Javascript</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLncHg6Kn2JT734qFpgJeSfFR0mMOklC_3">UDEMY - Backend RESTFul Server với Node.JS và Express (SQL/MongoDB)</a> - Hỏi Dân IT</li>
+</ul>
+
+<h2 id="php">PHP</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLaevEBkXyvnXEMoe6ZHFJGjPDb_eCCVNc">Học Lập Trình PHP + Mysql</a> - Hoàng Thương Official</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL88QwC-jiH9ByYqO0mVStNEHB6QT24yx1">Khoá học PHP &amp; MYSQL bài bản từ A-Z</a> - Học Lập Trình - Hienu</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355AsZFXlWLKob6tMsWZa4VCY1">Tự Học Lập trình PHP</a> - ZendVN - Học Lập Trình Online</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLsVJaIeVT78qJEPWJ9rIwgPCcmuVI-r4k">Tự học PHP  Laravel Framework cho người mới bắt đầu</a> - Đặng Kim Thi</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLieAxB9_noZlWuur0Hxw7BIYVbGJ-hS0N">Lập trình PHP1 - SU22</a> - Thầy Hộ Fpoly</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLSMUwja5VsJWoq5VmD5cW2Xoy52FILBV3">Học php từ cơ bản đến nâng cao - web bán hàng</a> - gv cybersoft</li>
+</ul>
+
+<h2 id="postgresql">PostgreSQL</h2>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Học PostgreSQL qua ví dụ</td>
+          <td> </td>
+          <td>PostgreSQL Tutorial](https://www.youtube.com/playlist?list=PLMbuMydSxMKxfg0OeJJoNsdRTnTIEcqmg) - Lập Trình B2A</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLRoAKls-7kksI-BbBn_ihFB9sRjSrDrs4">Postgresql cơ bản</a> - Migolab</li>
+  <li><a href="https://www.youtube.com/watch?v=OUlLQK_gN8k">Hiểu toàn bộ PostgreSQL trong 1h30p - 2023</a> - Trần Quốc Huy</li>
+</ul>
+
+<h2 id="python">Python</h2>
+
+<ul>
+  <li><a href="https://youtu.be/cZQ6m3W4OU4?si=p0sZRZfvW-YygFrp">Khóa học Lập trình Python cơ bản cho người mới bắt đầu</a> - Tờ Mờ Sáng học Lập trình</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLqfkD788zZGDjIctPlbff9doS_KTXOyDc">LẬP TRÌNH PYTHON CƠ BẢN</a> - Tờ Mờ Sáng học Lập trình</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1xczCv2BA0SaNJHu_VXsFtg">[Python] Lập trình Python cơ bản</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLyxSzL3F7486SaHaQayPdKJUScVFh1UwA">Lập trình Python cơ bản cho người mới bắt đầu</a> - TITV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLux-_phi0Rz0Ngc01o_GYe0JUGjL1yIAm">LẬP TRÌNH PYTHON TỪ CƠ BẢN TỚI NÂNG CAO</a> - 28tech</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLKzXIbeO5pQ0J2boMB4btE7VDs7gP8vdl">Lập Trình Python</a> - Dũng Lại Lập Trình</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLPt6-BtUI22oGqQwAEF6xwrFL6aOjtHWl">Tự học lập trình python</a> - Gà Lại Lập Trình</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLSpCQre3PzmWlodvqNcr0lg_10Bil8oF7">Khóa học Python cơ bản và nâng cao</a> - Lập trình Python</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLzQuu4-Qxlh44nsjdQH2quvfKePtAaI3_">Khóa học Lập trình Python từ Cơ bản đến Nâng cao</a> - Học Công Nghệ</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLUocOGc7RDEJAH2152KaiY9H8S-C8TvT-">Tự học python cơ bản</a> - Gà Python</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLzQuu4-Qxlh47gX_HnqKSJIycFNekP79m">Khóa học Lập trình Game với Python</a> - Học Công Nghệ</li>
+</ul>
+
+<h2 id="r">R</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLMIaO-u3S5-jO2rMt8r8HD5ifiZv_Sd9O">Hướng dẫn học R</a> - SciEco</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLpDNYPX7w1RYuBxWT0blVTrmxyb9KfJMg">Hướng dẫn phần mềm thống kê R và R-studio</a> - Bài Học 10 Phút</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLbRKZL7ww3qj1f1FjDE7Wl6tkZebPPrf2">Bài giảng về ngôn ngữ R</a> - Nguyễn Văn Tuấn</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[HỌC R SIÊU NHANH QUA CASE STUDY</td>
+          <td>R CRASH COURSE](https://www.youtube.com/playlist?list=PLCKFKYBfLgPV07MhYMoOMlazOSS7KwKuA) - DUC NGUYEN</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLCKFKYBfLgPU4mSgJ-5MhGDcki2UTBr2H">HƯỚNG DẪN SỬ DỤNG R ĐỂ XỬ LÝ DỮ LIỆU</a> - DUC NGUYEN</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLteVqnBNrrGWr8qmCJienB1ySL93aiIpW">Phân tích dữ liệu bằng ngôn ngữ R</a> - Chiến Tiên Nhân</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL9XZJEFXvG9E9HJn2n1Gu_TLAsVPc1MkJ">Thống kê trong R-Studio</a> - [Học một chút]</li>
+</ul>
+
+<h2 id="react">React</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLmbxe7ftoDqSNf5yGMhbDNjIZIM5mQ7Ow">Học lập trình React JS - Redux - NodeJS qua dự án thực tế</a> - Thầy Nguyễn Đức Việt</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLeS7aZkL6GOsHNoyeEpeL8B1PnbKoQD9m">Học React Hooks cơ bản (2020)</a> - Easy Frontend</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLeS7aZkL6GOvCz3GiOtvtDXChJRuebb7S">Học redux cơ bản 2020</a> - Easy Frontend</li>
+  <li><a href="https://youtube.com/playlist?list=PLncHg6Kn2JT6E38Z3kit9Hnif1xC_9VqI">Khóa Học Fullstack SERN (SQL, Express.js, React.js, Node.js) Web Developer</a> - Hỏi Dân IT</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLJ5qtRQovuEOoKffoCBzTfvzMTTORnoyp">Khóa Học Lập Trình React.js - Redux</a> - nghiepuit</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLzrVYRai0riQFEN586LOz3eMv2Rgy6WXS">Lập trình ReactJS với Redux</a> - Khoa Phạm</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLzrVYRai0riSPcINVFvaCaM7Ul55DzpLd">React.js Cơ Bản</a></li>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355Av08p6Zi1I67VYw47nMS8xO">ReactJS - Demo các project trong khóa học</a> - ZendVN - Học Lập Trình Online</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLkY6Xj8Sg8-tmotihDcWZN0LvtXFyxmRZ">Redux Cơ Bản</a> - CodersX</li>
+</ul>
+
+<h2 id="ruby">Ruby</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PL2hl9DVcc5u1f2uhSYko6Ea3bdaI_BGeB">Từ ruby tới rails 2022</a> - Lupca</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLFoXG6w6FhAp8WtQ7GicFWfILjdegaNET">Học Ruby on Rails Căn Bản</a> - Luân Nguyễn Thành</li>
+</ul>
+
+<h2 id="rust">Rust</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLFnEYduGTiXE2ejxmzTIraP2feI-pmeuw">LẬP TRÌNH RUST</a> - Jayden Dang</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLOB8_oGJl40SPgVOMJ6ivoEgmSvTiSdNQ">Lập trình cơ bản Rust</a> - Nguyen Tuan Dung</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Rust Back-End - Microservices</td>
+          <td>Server High Performance](https://www.youtube.com/playlist?list=PLFnEYduGTiXEPQ1pVCcg5zxgBS4RwM6wd) - Jayden Dang</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/playlist?list=PLbVzvoeVj6gTQvZq46tqqvDQ8d5WZbBPT">Rust</a> - Nỡm</li>
+</ul>
+
+<h2 id="sass">SASS</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355AtWld1EE7SBAH-OkKKt23Bb">Tự Học Sass</a> - ZendVN - Học Lập Trình Online</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1wstoZNI8szds9s0ESVbuqs">Khóa học lập trình CSS và SASS nâng cao cho website Landing Page 2019</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLJ5qtRQovuEMWzLVs3iuwcNsWeElizTwF">Khóa Học Lập Trình SCSS Từ Căn Bản Đến Nâng Cao</a> - Nghiep Phan</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLIRbquK6vGyf7sCUAGAYFOrS-kgbBc-O1">Khóa Học Lập Trình SASS</a> - IT News</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLw_erwgZq4-EGs9VEEKROpDbjCuzgx01W">SASS</a> - ZenDvn</li>
+</ul>
+
+<h2 id="security">Security</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLRSnr8eajoQyUdyywoUOvDRd9FLoovfg3">Khoá học an ninh mạng của Cisco về CyberSecurity</a> - VQT Network</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLggwtzPh_8VkV50VGVpvybnnqCdgIBCVb">Khóa Học Hacker Mũ Trắng Và Bảo Mật Thông Tin</a> - Nguyễn Thế Lợi</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLOBQKf6CISRQK4laM3VLug8wweoMv0iz4">Quản trị An ninh mạng Cisco CCNA Security</a> - Giai Phap Mang H3T</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLijX7E_0LDO-UFu2KluCfxbFZE-NS3TQ_">HỌC BẢO MẬT CÙNG CYBERJUTSU</a> - CyberJutsuTV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLLHcUwF4MJE2nZhxQtXCk2bpYi4ZtCZIg">AN NINH MẠNG CHO NGƯỜI MỚI</a> - Trung tâm đào tạo an ninh mạng - Cybersecurity</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLFJBtgskuhZYoOqwnRNLbUvFadA6ApqjH">Quản trị mạng máy tính Cisco CCNA</a> - An ninh mạng</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLLHcUwF4MJE1xHr5tuBvyLUxu09dGInRm">Cyber Security</a> - Trung tâm đào tạo an ninh mạng - Cybersecurity</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLSzZlHir9jJSSygXLtqkhPQNIYkYqGTAU">Khóa Học Hacker Mũ Trắng-AEH</a> - Trung Tam Athena</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLijX7E_0LDO_-v_UhGNujj_NBTysTwzkC">NHẬP MÔN AN TOÀN THÔNG TIN</a> - CyberJutsuTV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLu9yx0lLtsRiaeIQ-yn0huBD3YKgJ6wzC">OWASP Top 10 Vulnerabilities</a> - Cookie Han Hoan</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLu9yx0lLtsRiWkLUlOyQg-U4Gu0VTPMe_">Introduction to Web Application Security</a> - Cookie Han Hoan</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLu9yx0lLtsRi3rG11n0fl0H_-3jkSBZk3">Web Hacking Techniques</a> - Cookie Han Hoan</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLu9yx0lLtsRhWd2ZQsaM881HXbxZ0dgkS">Giải thích lỗ hổng Web phổ biến và cách khai thác</a> - Cookie Han Hoan</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLu9yx0lLtsRgpVspJJeZ_CfcsDY-onsCo">Hướng dẫn Bug Bounty cho người mới</a> - Cookie Han Hoan</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLu9yx0lLtsRhM3QN-R6tzMbLr7gBmD6c-">Tìm kiếm lỗ hổng Web</a> - Cookie Han Hoan</li>
+</ul>
+
+<h2 id="sql">SQL</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PL01fPqVNMdrmtcb_Yui_Oh23X_3laoZoO">Tự Học SQL cùng Vịt - Khóa Cơ Bản cho Người Mới Bắt Đầu</a> - Vịt làm Data</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE1qPKuGSJaDkQQB5vK7t7-PRIVjtqeHB">Học SQL Cơ Bản</a> - thân triệu</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355AtXdxv1WLgxmorw3OMesoS7">Tự học SQL - Ngôn ngữ SQL</a> - ZendVN</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLavGKPtOxApM2hfcLdIU3mVWIo5G2ZX2a">Tự Học SQL Cơ Bản Đến Nâng Cao</a> - Test Mentor</li>
+  <li><a href="https://www.youtube.com/watch?v=XQbBW4atzr8">Hướng dẫn học SQL siêu dễ hiểu</a> - Maz Học Data</li>
+  <li><a href="https://www.youtube.com/watch?v=TslBGnENTFw">Hiểu toàn bộ MySQL Database trong 1 giờ 42 phút</a> - Trần Quốc Huy</li>
+</ul>
+
+<h2 id="sql-server">SQL Server</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLyxSzL3F7484deka_j1czssCiHygV6oF-">Khóa học SQL Server cho người mới (2023)</a> - TITV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1xnFpWQF6YH11kMTS1HmLsw">[SQL Server] Khóa học sử dụng SQL server</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLyOUYAtDpqrfVUnjw5h0kG5a2-b9sHNKd">Tự Học SQL Server Cơ Bản</a> - Học Viện Công nghệ MCI</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLNJklplv9g14lsZqtDd879kdyrs02NlBx">Tự học Microsoft SQL Server</a> - 1Click2beDBA</li>
+  <li><a href="https://www.youtube.com/watch?v=alqEF4I23nw">Học SQL Server trong 60 phút - 2023</a> - Trần Quốc Huy</li>
+</ul>
+
+<h2 id="swift">Swift</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLRb-vAn1juPSOsB7sUhs6QYLkMg1mYawl">Hướng dẫn lập trình Swift iOS từ A đến Z</a> - Thạch Phạm Dev</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLOxRl_MBrBg9plgHWtA2R62CRzRPW7Pvq">Tự Học Swift iOS</a> - Học Lập Trình Cho Người Mới</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL4VEtQ6PTTQFCBxdxUIS3h6h7wSTEHrPu">Học lập trình Swift 3 - Cơ bản</a> - edu TV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLBgIyLVk3GlT07wf1UPCDg6duV2iDKVbu">Lập trình iOS - Swift</a> - laptrinh0kho</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLBgIyLVk3GlSGQ68t3Qvfqg_x_RacLXje">Lập trình iOS với SwiftUI</a> - laptrinh0kho</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLw0_ti13tferyQFB7pJpqbk5mFOjJsyU9">Tự học và xây dựng 10 ứng dụng IOS với SWIFT</a> - Thích Code</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLzrVYRai0riSlAocQR3BvHCtEhcKa204E">Lập trình iOS cơ bản với Swift 3 và Xcode 8</a> - Trung Tâm Đào Tạo Công Nghệ Khoa Phạm</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLR1-CgtL7hK6bbuXUSgAKZveZsKa2tehl">Swift - Tổng quan</a> - Dev Step by Step</li>
+</ul>
+
+<h2 id="typescript">TypeScript</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLncHg6Kn2JT5emvXmG6kgeGkrQjRqxsb4">Tự Học TypeScript Cơ Bản Từ A đến Z Cho Người Mới Bắt Đầu</a> - Hỏi Dân IT</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLkY6Xj8Sg8-vTdKt2QdlCqoIKEFrWHx9l">Tự học TypeScript 2021</a> - CodersX</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLeS7aZkL6GOtUGTQ81kfm3iGlRTycKjrZ">Typescript cơ bản</a> - Easy Frontend</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355AsQtYp_YrsqEihOCiNlZkCb">Lập trình TypeScript</a> - ZendVN</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLnRJxWEhhmzpneEcZIZY_fs18OANMlxhA">ReactJS và Typescript Cho Người Mới Bắt Đầu</a> - Ninedev</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLncHg6Kn2JT5009M5nlo_un6wlIHM-0HS">Tự Học Fullstack Next.js/Nest.js (TypeScript)</a> - Hỏi Dân IT</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLRhlTlpDUWswObIX8HNCSHWOpgvjMiMe2">ES6 &amp; TypeScript cho người mới bắt đầu</a> - TEDU</li>
+</ul>
+
+<h2 id="unity">Unity</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLl-dkipSQUGcQQgvh9j8a75Sz4zx9vWo8">Lập Trình Game 2D Trên Unity3D - Kiến Thức Căn Bản</a> - U DEV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLE5Rxh1l0Qs5zorOJMa777FzSYoTNreJH">Free Unity - Zitga</a> - Unity3d Việt Nam</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLRz-2ltlXLUKYiFcSG1ME0G5-ukGCHtc_">Unity Azure Cloud Game</a> - Coding Reshape Future</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL4voWW1tQT6qfAR8XTD6VcYglb8Kvdw5F">Khóa học lập trình Game Unity</a> - CodeGym</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLw2nfWzUTIAkZGD8r2jPjVw-sSCIIV1wa">Học làm game 2D trên Unity</a> - Tech Lap</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL33lvabfss1wO1v5j9J5PHsbkQRlmo7KD">Unity 3D</a> - K team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL9YFzEkTXjbMlVFT3AtHiaARHoZgAP8sm">C0: Cơ bản Unity C#</a> - Sai Game</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL9YFzEkTXjbM7gq3QVkb5rC4dO8JdIsdj">C2: Cơ bản Unity 3D</a> - Sai Game</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL9YFzEkTXjbOUFE0wCrSa4SAjJN7Nz6yq">C3: Học Làm Game Unity2D</a> - Sai Game</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL9YFzEkTXjbNa2vGgWFCBkNaNCzAFRSQ1">C4 - Cơ bản Unity 3D C#</a> - Sai Game</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL9YFzEkTXjbPJLYHlMQ4oxrqdXYVc8t9G">G1: Hướng Dẫn Unity 3D - City Building</a> - Sai Game</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL9YFzEkTXjbMkbjtjdxHFySO5rhPN1uMx">G2: Cách làm Game 2D và Tower Defense</a> - Sai Game</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL9YFzEkTXjbP7XXmElG-bRc5R84Hxifes">G3: Cách làm game thẻ bài - Game Card</a> - Sai Game</li>
+</ul>
+
+<h2 id="vuejs">Vue.js</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLwJIrGynFq9B_BQJZJi-ikWDDkYKVUpM5">Khoá học Vuejs từ cơ bản đến nâng cao</a> - Tech Mely</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLnRJxWEhhmzrtVhPAzNCv4DbQk1R7_fS4">VueJS Dành Cho Người Mới Bắt Đầu 2024</a> - Ninedev</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLU4OBh9yHE95G_Y1cUVY-5Mc9P-rQBY3F">Học Vue JS 2 cơ bản</a> - RHP Team</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355AtDjStqeyXvhA1oRLuhvJWf">Lập trình VueJS</a> - ZendVN</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL7akNQhSmpsZUB7aP-ttyYVHHaKjn0W7P">Vue js 3 Cơ Bản</a> - Tips Web Hay</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLieV0Y7g-FFy_hVCs3lf973Yo8_rsRGc0">Series Tự học Vuejs 3 A - Z</a> - Tự học lập trình từ A đến Z</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL7akNQhSmpsYTQsV6jqZmmlLEu37IWA7f">Demo Dự án Vue JS 3!</a> - Tips Web Hay</li>
+</ul>
+
+<h2 id="wordpress">Wordpress</h2>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLFsfDLNKS58x01diBZc-jrRWukDdSWI4z">Học thiết kế Website Wordpress từ A đến Z</a> - Học WordPress</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL8tBvUxXM0tww5FCbQcCuKVlDxEjlyiau">Học WordPress cơ bản cho người mới bắt đầu tự làm website</a> - Digital Marketing IMTA</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLl4nkmb3a8w3EEFbxkPjd6snE11eAPh5e">Học WordPress 4 cơ bản (2015)</a> - Thạch Phạm</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLyxSzL3F7487-LYICz9nzlbQ5XJxFQPoI">Tự học Wordpress</a> - TITV</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLoNIfk8yyjz6Z-r6s8oksoB0xo4NUsMQN">Tự học làm website WordPress 2023 (Module nền tảng + làm blog cá nhân)</a> - Võ Thanh Duy</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLl4nkmb3a8w2Z_sEJv_0xoXIHWMfhEw76">WordPress Tinh Gọn 2024</a> - Thạch Phạm</li>
+  <li><a href="https://www.youtube.com/playlist?list=PL0-Cg8lpmCm3lBsQ6dciJGU4e7oNs-S5w">Lập trình WordPress 2023</a> - Quảng Trị Coder</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLv6GftO355As7yY0I6-fDZOHKatBjq9jI">Tự học WordPress Online - Cài đặt và sử dụng WordPress CMS</a> - ZendVN</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLSYhjar46cY7AAFWKqXfilAHfhdizCoAQ">học thiết kế web bằng wordpress</a> - Richard Quang</li>
+</ul>
+
+</main>
+
+
+  <!-- Back -->
+  <p style="margin-top: 2rem; text-align: center;">
+    <a href="/posts/" class="back-notes">⬅ Back to Blog Posts</a>
+  </p>
+
+
+<!-- ===== Shared Styles (no Liquid inside) ===== -->
+<style>
+  :root{
+    --bar-h: 48px;
+    --btn-w: 78px; --btn-h: 112px; --btn-right: 22px; --btn-bottom: 22px;
+  }
+  @media (max-width:480px){
+    :root{ --btn-w:66px; --btn-h:98px; --btn-right:16px; --btn-bottom:16px; }
+  }
+
+  /* Breadcrumb */
+  .breadcrumbs{
+    position: sticky; top: 0; z-index: 1000;
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .4rem .8rem; margin: .75rem 0 1rem;
+    background:#111; border:1px solid #0f0; border-radius:9999px;
+    box-shadow:0 0 6px rgba(0,255,0,.25); max-width:100%; overflow:auto;
+  }
+  .breadcrumbs a{ color:#4af; text-decoration:none; font-weight:600; }
+  .breadcrumbs span{ color:#fff; font-weight:700; }
+
+  main h2, main h3{ scroll-margin-top: calc(var(--bar-h) + 12px); }
+
+  /* TOC */
+  .toc{
+    border-left:3px solid #6f6; margin:.5rem 0 1.2rem; background:#0b0b0b;
+    border-radius:8px; box-shadow:0 0 6px rgba(0,255,0,.15); overflow:hidden;
+  }
+  .toc-head{ display:flex; align-items:center; gap:.5rem; padding:.55rem .9rem; cursor:pointer; user-select:none; }
+  .toc-caret{ transition: transform .2s; }
+  .toc[aria-expanded="true"] .toc-caret,.toc:not(.collapsed) .toc-caret{ transform: rotate(90deg); }
+  .toc-body{ overflow:hidden; max-height:0; transition:max-height .25s, padding .25s; padding:0 .9rem; }
+  .toc:not(.collapsed) .toc-body{ padding:.2rem .9rem .8rem; max-height:1200px; }
+  .toc-body ul{ list-style:none; padding:0; margin:0; }
+  .toc-body li{ margin:.2rem 0; }
+  .toc-body li[data-level="3"]{ margin-left:1rem; }
+
+  /* Back link pill */
+  .back-notes{
+    display:inline-block; padding:.6rem 1.2rem; border:1px solid #0f0; border-radius:9999px;
+    color:#4af; text-decoration:none; font-weight:600; background:#111; box-shadow:0 0 6px rgba(0,255,0,.25);
+    transition:all .25s;
+  }
+  .back-notes:hover{ background:#0f0; color:#111; }
+
+  /* ===== Back-to-Top Cyberpunk (NO progress inside) ===== */
+  #backTop{
+    position: fixed; right: var(--btn-right); bottom: var(--btn-bottom); z-index: 9999;
+    width: var(--btn-w); height: var(--btn-h); border-radius: 14px; cursor: pointer;
+    background: linear-gradient(180deg,#0b0b0b 0%, #050505 100%);
+    border: 2px solid transparent;
+    box-shadow: 0 0 14px rgba(0,255,170,.45),
+                0 0 26px rgba(0,140,255,.35),
+                inset 0 0 12px rgba(0,255,170,.08);
+    display: none; opacity:.98;
+    animation: floatCard 3s ease-in-out infinite;
+    transition: transform .25s, box-shadow .25s, opacity .25s, filter .25s;
+  }
+  #backTop::before{
+    content:""; position:absolute; inset:-2px; border-radius:16px; z-index:-1;
+    background:conic-gradient(from 0deg,#00ffa6,#00b7ff,#ff2bd6,#00ffa6);
+    filter:blur(6px) saturate(1.4);
+    transition:transform 1.5s linear, filter .5s;
+  }
+  #backTop:hover{
+    box-shadow: 0 0 18px rgba(0,255,170,.65),
+                0 0 36px rgba(0,140,255,.55),
+                inset 0 0 14px rgba(0,255,170,.12);
+    filter:brightness(1.06) contrast(1.08) saturate(1.12);
+    animation:shake .45s cubic-bezier(.36,.07,.19,.97) both, floatCard 3s ease-in-out infinite .45s;
+  }
+  #backTop:hover::before{ transform: rotate(360deg); filter: hue-rotate(360deg) blur(6px) saturate(1.4); }
+  #backTop .arrow{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:26px; color:#fff; text-shadow:0 0 8px rgba(0,255,170,.9),0 0 16px rgba(0,140,255,.7);
+    pointer-events:none;
+  }
+
+  /* ===== Mini progress ring (only one we keep) ===== */
+  #scrollProgressMini{
+    position: fixed;
+    right: 22px; bottom: 150px; /* tạm; JS sẽ đặt lại theo #backTop */
+    width: 52px; height: 52px;
+    display: none; align-items: center; justify-content: center;
+    border-radius: 50%; background: #0b0b0b;
+    box-shadow: 0 0 8px rgba(0,255,170,.4), 0 0 16px rgba(0,140,255,.3);
+    z-index: 9999;
+  }
+  #scrollProgressMini .ring{ position:absolute; inset:4px; transform: rotate(-90deg); }
+  #scrollProgressMini .ring-bg{ fill:none; stroke:rgba(255,255,255,.18); stroke-width:4; }
+  #scrollProgressMini .ring-fg{
+    fill:none; stroke:#a3ff12; stroke-width:4; stroke-linecap:round;
+    stroke-dasharray:1 120; stroke-dashoffset:0;
+    filter:drop-shadow(0 0 4px rgba(163,255,18,.7));
+  }
+  #scrollProgressMini .percent{
+    position:relative; font-size:.72rem; font-weight:800; color:#a3ff12; text-shadow:0 0 4px rgba(163,255,18,.6);
+  }
+  @media (max-width:480px){
+    #scrollProgressMini{ width:46px; height:46px; }
+    #scrollProgressMini .percent{ font-size:.68rem; }
+    #scrollProgressMini .ring{ inset:3px; }
+  }
+
+  /* Animations */
+  @keyframes floatCard{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes shake{ 10%,90%{transform:translate3d(-1px,0,0)} 20%,80%{transform:translate3d(2px,0,0)} 30%,50%,70%{transform:translate3d(-3px,0,0)} 40%,60%{transform:translate3d(3px,0,0)} }
+</style><style>.page-header .project-name, .page-header .project-tagline{ display:none; }</style><!-- Back-to-Top card (no progress inside) -->
+<button id="backTop" type="button" title="Back to top" aria-label="Back to top">
+  <span class="arrow">▲</span>
+</button>
+
+<!-- Mini progress ring above the card -->
+<div id="scrollProgressMini" aria-hidden="true" title="Scroll progress">
+  <svg class="ring" viewBox="0 0 44 44" width="44" height="44">
+    <circle class="ring-bg" cx="22" cy="22" r="19.5"></circle>
+    <circle class="ring-fg" cx="22" cy="22" r="19.5"></circle>
+  </svg>
+  <span class="percent">0%</span>
+</div>
+
+<script>
+  /* Dedupe: remove duplicated includes if any */
+  (function(){['#backTop','#scrollProgressMini'].forEach(sel=>{
+    const nodes=document.querySelectorAll(sel); if(nodes.length>1) nodes.forEach((el,i)=>{ if(i>0) el.remove(); });
+  });})();
+
+  // Build TOC (unchanged)
+  (function () {
+    const toc = document.getElementById("toc"); if (!toc) return;
+    const heads = [...document.querySelectorAll("main h2, main h3")];
+    if (!heads.length) { toc.remove(); return; }
+    heads.forEach(h => { if (!h.id) h.id = h.textContent.trim().toLowerCase().replace(/[^\w\- ]+/g,"").replace(/\s+/g,"-"); });
+    const ul = document.createElement("ul");
+    heads.forEach(h => { const li=document.createElement("li"); li.setAttribute("data-level", h.tagName==="H3"?"3":"2"); const a=document.createElement("a"); a.href="#"+h.id; a.textContent=h.textContent; li.appendChild(a); ul.appendChild(li); });
+    toc.querySelector(".toc-body").appendChild(ul);
+    const key="toc-state:"+location.pathname, preferOpen=matchMedia("(min-width:900px)").matches, saved=localStorage.getItem(key), startOpen=saved? saved==="open" : preferOpen;
+    setExpanded(startOpen);
+    function setExpanded(open){ toc.classList.toggle("collapsed", !open); toc.setAttribute("aria-expanded", String(open)); toc.querySelector(".toc-head").setAttribute("aria-expanded", String(open)); }
+    function toggle(){ const open=toc.classList.contains("collapsed"); setExpanded(open); localStorage.setItem(key, open ? "open" : "closed"); }
+    const head=toc.querySelector(".toc-head"); head.addEventListener("click", toggle);
+    head.addEventListener("keydown", e => { if (e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); }});
+  })();
+
+  // Back-to-Top + Mini progress ring (only mini shows progress)
+  (function () {
+    const btn  = document.getElementById("backTop");
+    const mini = document.getElementById("scrollProgressMini");
+    const miniTxt  = mini?.querySelector(".percent");
+    const miniRing = mini?.querySelector(".ring-fg");
+    if (!btn || !mini || !miniTxt || !miniRing) return;
+
+    // prepare ring
+    const r = parseFloat(miniRing.getAttribute("r") || "19.5");
+    const C = 2 * Math.PI * r;
+    miniRing.style.strokeDasharray = `${C} ${C}`;
+    miniRing.style.strokeDashoffset = `${C}`;
+
+    function setProgress(p){
+      miniRing.style.strokeDashoffset = String(C - (p/100)*C);
+      miniTxt.textContent = p + "%";
+    }
+
+    // place mini just above the card
+    function placeMini(){
+      const gap = 24;
+      const rect = btn.getBoundingClientRect();
+      mini.style.right  = (window.innerWidth  - rect.right) + "px";
+      mini.style.bottom = (window.innerHeight - rect.top + gap) + "px";
+    }
+
+    function update(){
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      const sc  = max > 0 ? Math.round((doc.scrollTop / max) * 100) : 0;
+      setProgress(sc);
+      const show = sc > 3;
+      btn.style.display  = show ? "block" : "none";
+      mini.style.display = show ? "flex"  : "none";
+      if (show) placeMini();
+    }
+
+    window.addEventListener("scroll", update, { passive:true });
+    window.addEventListener("resize", () => { if (mini.style.display !== "none") placeMini(); });
+    update();
+
+    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  })();
+</script>
+
+
+    </main>
+
+    <!-- Cursor CSS + JS (anti-flicker) -->
+    <style>
+  :root{
+    --cursor-normal: url('/assets/images/cursor-normal-32.png') 4 4, auto;
+    --cursor-hover:  url('/assets/images/cursor-hover-32.png') 4 4, auto;
+  }
+
+  /* Mặc định: phủ custom cursor toàn trang (ưu tiên cao) */
+  html, body, * {
+    cursor: var(--cursor-normal) !important;
+  }
+
+  /* Tất cả trạng thái của link & vùng clickable -> dùng hover cursor */
+  a, a *,
+  a:link, a:link *,
+  a:visited, a:visited *,
+  a:hover, a:hover *,
+  a:focus, a:focus *,
+  a:active, a:active *,
+  a:focus-visible, a:focus-visible *,
+  button, button *,
+  [role="button"], [role="button"] *,
+  [onclick], [onclick] *,
+  input[type="button"], input[type="submit"],
+  label[for], summary {
+    cursor: var(--cursor-hover) !important;
+  }
+
+  /* Khi đang giữ chuột / đang điều hướng: ép toàn trang sang hover-cursor */
+  html.is-mousedown *, html.is-mousedown *::before, html.is-mousedown *::after,
+  html.is-mousedown svg, html.is-mousedown svg *,
+  html.is-navigating *, html.is-navigating *::before, html.is-navigating *::after,
+  html.is-navigating svg, html.is-navigating svg *{
+    cursor: var(--cursor-hover) !important;
+  }
+
+  /* Vùng nhập liệu giữ I-beam (kể cả khi mousedown/navigating) */
+  input, textarea, [contenteditable="true"]{
+    cursor: text !important;
+  }
+  html.is-mousedown input,
+  html.is-mousedown textarea,
+  html.is-mousedown [contenteditable="true"],
+  html.is-navigating input,
+  html.is-navigating textarea,
+  html.is-navigating [contenteditable="true"]{
+    cursor: text !important;
+  }
+
+  /* Retina 2x: dùng ảnh 48px, hotspot 6,6 (sắc nét) */
+  @media (min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2){
+    :root{
+      --cursor-normal: url('/assets/images/cursor-normal-48.png') 6 6, auto;
+      --cursor-hover:  url('/assets/images/cursor-hover-48.png') 6 6, auto;
+    }
+  }
+
+  /* Thiết bị cảm ứng: trả về mặc định */
+  @media (pointer: coarse){
+    html, body, *, *::before, *::after{
+      cursor: auto !important;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const root = document.documentElement;
+
+    const addDown = () => root.classList.add('is-mousedown');
+    const rmDown  = () => root.classList.remove('is-mousedown');
+    const addNav  = () => root.classList.add('is-navigating');
+    const rmNav   = () => root.classList.remove('is-navigating');
+
+    /* Dùng capture để chạy TRƯỚC khi UA áp :active */
+    window.addEventListener('mousedown', addDown,   { passive: true, capture: true });
+    window.addEventListener('pointerdown', addDown, { passive: true, capture: true });
+
+    window.addEventListener('mouseup', rmDown,       { passive: true });
+    window.addEventListener('pointerup', rmDown,     { passive: true });
+    window.addEventListener('pointercancel', rmDown, { passive: true });
+    window.addEventListener('dragend', rmDown,       { passive: true });
+
+    /* Click link -> bật cờ điều hướng ngay.
+       Nếu là SPA/preventDefault, gỡ cờ sau 200ms để tránh kẹt trạng thái. */
+    document.addEventListener('click', (e) => {
+      const isLeft = (e.button === 0);
+      const el = e.target.closest('a, [data-href]');
+      if (!el || !isLeft) return;
+
+      if ((el.tagName === 'A' && el.href) || el.hasAttribute('data-href')) {
+        addNav();
+        setTimeout(rmNav, 200);
+      }
+    }, { passive: true, capture: true });
+
+    /* Khi sắp rời trang thực sự */
+    window.addEventListener('beforeunload', addNav, { once: true });
+    window.addEventListener('pagehide',     addNav, { once: true });
+
+    /* Quay lại từ bfcache: dọn lại cờ */
+    window.addEventListener('pageshow', () => { rmDown(); rmNav(); }, { passive: true });
+  })();
+</script>
+
+  </body>
+</html>

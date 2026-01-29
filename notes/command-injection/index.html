@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Command Injection | PMD • Notes
+    </title>
+
+    <!-- Preload ảnh cursor để load nhanh -->
+    <link rel="preload" href="/assets/images/cursor-normal-32.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-hover-32.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-normal-48.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-hover-48.png" as="image">
+
+    <!-- CSS theme chính -->
+    <link
+      rel="stylesheet"
+      href="/assets/css/style.css?v="
+    />
+
+    <!-- Thêm CSS cho Portfolio -->
+    <link rel="stylesheet" href="/assets/css/portfolio.css">
+
+    <!-- Fallback minimal nếu theme lỗi -->
+    <style>
+      html, body { background:#0b0b0b; color:#eaeaea; margin:0; padding:0; }
+      body {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                     "Liberation Mono","Courier New", monospace;
+      }
+      main img, .markdown-body img,
+      main svg, .markdown-body svg,
+      main canvas, .markdown-body canvas {
+        max-width:100%; height:auto; display:block;
+      }
+      main, .markdown-body, main h1, main h2, main h3 {
+        overflow-wrap:anywhere; word-break:break-word;
+      }
+      main pre, .markdown-body pre {
+        overflow-x:auto; white-space:pre; -webkit-overflow-scrolling:touch;
+      }
+      main table, .markdown-body table {
+        display:block; width:100%; overflow-x:auto;
+      }
+    </style>
+
+    <script>
+  (function () {
+    function setFav(emoji) {
+      let link = document.querySelector(
+        "link#dynamic-favicon[rel='icon']"
+      );
+      if (!link) {
+        link = document.createElement("link");
+        link.id = "dynamic-favicon";
+        link.rel = "icon";
+        link.type = "image/svg+xml";
+        document.head.appendChild(link);
+      }
+
+      const svg =
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>" +
+        "<text x='50' y='70' text-anchor='middle' font-size='90'>" +
+        emoji +
+        "</text>" +
+        "</svg>";
+
+      // Né cache
+      link.href =
+        "data:image/svg+xml," +
+        encodeURIComponent(svg) +
+        "#v=" +
+        Date.now();
+    }
+
+    function pickEmojiFromH1() {
+      const h1 = document.querySelector("main h1, h1");
+      if (!h1) return null;
+      const txt = h1.textContent || "";
+
+      // Unicode property (browser mới)
+      try {
+        const m = txt.match(/\p{Extended_Pictographic}/u);
+        if (m && m[0]) return m[0];
+      } catch (e) {}
+
+      // Fallback dải thường gặp
+      const m2 = txt.match(
+        /[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}]/u
+      );
+      return m2 ? m2[0] : null;
+    }
+
+    function init() {
+      const emoji = pickEmojiFromH1() || "🛡️";
+      setFav(emoji);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+</script>
+
+  </head>
+
+  <body>
+    <!-- Navbar chỉ hiện khi có show_nav: true -->
+    
+
+    <!-- Nội dung chính -->
+    <main class="page-wrap" style="max-width: 980px; margin: 2rem auto; padding: 0 1rem;">
+      
+
+
+<!-- Breadcrumb -->
+<div class="breadcrumbs">
+  <a href="/">🏠 Home</a>
+  &nbsp;/&nbsp;
+  <a href="/notes/">📓 Notes</a>
+  
+    &nbsp;/&nbsp;<span>Command Injection</span>
+  
+</div>
+
+<main>
+  
+    <!-- TOC -->
+    <nav id="toc" class="toc collapsed" aria-expanded="false" aria-controls="toc-body">
+      <div class="toc-head" role="button" aria-expanded="false" tabindex="0">
+        <span class="toc-caret">▸</span>
+        <strong>Contents</strong>
+      </div>
+      <div id="toc-body" class="toc-body"></div>
+    </nav>
+  
+
+  <h1 id="command-injection">Command Injection</h1>
+
+<h2 id="1-giới-thiệu">1) Giới thiệu</h2>
+<ul>
+  <li><strong>Command Injection</strong> là một biến thể của nhóm lỗi <strong>Injection</strong>: dữ liệu người dùng (input) bị “trộn” vào <strong>lệnh hệ điều hành (OS command)</strong> và được thực thi ngoài ý muốn.</li>
+  <li>Hậu quả có thể rất nặng: lộ dữ liệu nhạy cảm, tạo backdoor, thậm chí chiếm toàn quyền máy chủ.</li>
+  <li>Tính đến <strong>2025</strong>, lỗi này vẫn xuất hiện nhiều ở web UI của thiết bị mạng/IoT (router, NAS, camera), nơi hay có tính năng ping/traceroute/backup chạy lệnh hệ điều hành phía sau.</li>
+</ul>
+
+<hr />
+
+<h2 id="2-os-command-là-gì">2) OS command là gì?</h2>
+<p>Một vài ví dụ lệnh trên Linux:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">ls</span> <span class="nt">-la</span>
+<span class="nb">cat</span> /etc/passwd
+ping 8.8.8.8
+</code></pre></div></div>
+<p>Nếu ứng dụng <strong>nối thẳng</strong> input của người dùng vào chuỗi lệnh, bạn đã có bệ phóng cho Command Injection.</p>
+
+<hr />
+
+<h2 id="3-ví-dụ-minh-họa-tối-giản">3) Ví dụ minh họa tối giản</h2>
+<p>Ứng dụng cung cấp chức năng “ping IP”:</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="nv">$ip</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">"ip"</span><span class="p">];</span>
+<span class="nb">system</span><span class="p">(</span><span class="s2">"ping -c 4 "</span> <span class="mf">.</span> <span class="nv">$ip</span><span class="p">);</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+<ul>
+  <li>Dev kỳ vọng người dùng nhập <code class="language-plaintext highlighter-rouge">8.8.8.8</code>.</li>
+  <li>Attacker nhập: <code class="language-plaintext highlighter-rouge">8.8.8.8; ls -la</code></li>
+</ul>
+
+<p>Lệnh thực thi trên server trở thành:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ping <span class="nt">-c</span> 4 8.8.8.8<span class="p">;</span> <span class="nb">ls</span> <span class="nt">-la</span>
+</code></pre></div></div>
+<p>👉 Server <strong>ping</strong> xong sẽ <strong>chạy thêm <code class="language-plaintext highlighter-rouge">ls -la</code></strong>.<br />
+Nếu attacker nhập <code class="language-plaintext highlighter-rouge">8.8.8.8; cat /etc/passwd</code> → rò rỉ thông tin tài khoản hệ thống.</p>
+
+<hr />
+
+<h2 id="4-vì-sao-khai-thác-được">4) Vì sao khai thác được?</h2>
+<p>Trên shell, có nhiều “toán tử” để <strong>nối nhiều lệnh</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">;</code>  → chạy lệnh 2 <strong>bất kể</strong> lệnh 1 thành công/thất bại</li>
+  <li><code class="language-plaintext highlighter-rouge">&amp;&amp;</code> → chạy lệnh 2 <strong>chỉ khi</strong> lệnh 1 <strong>thành công</strong></li>
+  <li><code class="language-plaintext highlighter-rouge">||</code> → chạy lệnh 2 <strong>chỉ khi</strong> lệnh 1 <strong>thất bại</strong></li>
+</ul>
+
+<p>Ví dụ thử nghiệm:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>8.8.8.8<span class="p">;</span> <span class="nb">whoami
+</span>8.8.8.8 <span class="o">&amp;&amp;</span> <span class="nb">id
+</span>8.8.8.8 <span class="o">||</span> <span class="nb">uname</span> <span class="nt">-a</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="5-pentester-workflow-tư-duy-kiểm-thử">5) Pentester workflow (tư duy kiểm thử)</h2>
+<ol>
+  <li><strong>Xác định điểm vào</strong>: tham số nào đi tới hàm chạy lệnh (<code class="language-plaintext highlighter-rouge">system</code>, <code class="language-plaintext highlighter-rouge">exec</code>, <code class="language-plaintext highlighter-rouge">popen</code>, <code class="language-plaintext highlighter-rouge">shell_exec</code>, <code class="language-plaintext highlighter-rouge">ProcessBuilder</code>, v.v.).</li>
+  <li><strong>Probing</strong>: thử payload tối giản <code class="language-plaintext highlighter-rouge">; ls</code> / <code class="language-plaintext highlighter-rouge">&amp;&amp; ls</code> để xem có bị nối lệnh không.</li>
+  <li><strong>Xác nhận thực thi</strong>: <code class="language-plaintext highlighter-rouge">whoami</code>, <code class="language-plaintext highlighter-rouge">id</code>, <code class="language-plaintext highlighter-rouge">uname -a</code>, đọc file nhỏ.</li>
+  <li><strong>Mở rộng tác động</strong>: đọc config DB, dump source, hoặc leo thang tới <strong>RCE</strong> toàn hệ thống (tùy phạm vi cho phép trong bài test).</li>
+</ol>
+
+<p>💡 Mẹo: nếu ký tự <code class="language-plaintext highlighter-rouge">;</code> bị chặn, thử đổi sang <code class="language-plaintext highlighter-rouge">|</code>, <code class="language-plaintext highlighter-rouge">&amp;&amp;</code>, <code class="language-plaintext highlighter-rouge">||</code>, dấu xuống dòng, hoặc cách thoát lồng nhau tùy shell.</p>
+
+<hr />
+
+<h2 id="6-thực-tế-2025-gặp-ở-đâu-nhiều">6) Thực tế 2025: gặp ở đâu nhiều?</h2>
+<ul>
+  <li><strong>Router / NAS / Camera / IoT</strong>: giao diện quản trị web có chức năng chẩn đoán mạng (ping, traceroute) hoặc sao lưu—thường gọi command nội bộ.</li>
+  <li><strong>Ứng dụng web nội bộ</strong>: trang quản trị tiện ích (convert, backup, scan log, chạy script).</li>
+  <li><strong>CI/CD &amp; tác vụ tự động</strong>: hook/build script ghép chuỗi lệnh từ input người dùng.</li>
+</ul>
+
+<hr />
+
+<h2 id="7-ví-dụ-thực-tế-tóm-tắt-ngắn">7) Ví dụ thực tế (tóm tắt ngắn)</h2>
+<ul>
+  <li><strong>SaltStack (CVE-2020-11651/11652)</strong>: chuỗi lỗi dẫn tới thực thi lệnh từ xa trên Salt Master.</li>
+  <li><strong>Cisco RV series / TP-Link / WD MyCloud</strong> (nhiều mã lỗi qua các năm): tham số UI không được lọc kỹ → nối vào lệnh hệ điều hành → RCE.</li>
+  <li><strong>Xu hướng đến 2025</strong>: các firmware/thiết bị cũ, code tái sử dụng nhiều năm dễ bị Command Injection do thói quen ghép chuỗi lệnh.</li>
+</ul>
+
+<p><em>(Gợi ý đọc thêm ở phần tham khảo để xem chi tiết từng vụ.)</em></p>
+
+<hr />
+
+<h2 id="8-phòng-thủ-nguyên-tắc-vàng">8) Phòng thủ (nguyên tắc vàng)</h2>
+<p><strong>Tốt nhất: không dùng shell nếu không thật sự cần.</strong></p>
+<ul>
+  <li><strong>Thay vì</strong> <code class="language-plaintext highlighter-rouge">system("ping -c 4 " . $ip)</code><br />
+<strong>Hãy</strong> dùng API/thư viện native (ví dụ lib ICMP) hoặc thực thi lệnh <strong>không qua shell</strong> (spawn process với mảng tham số an toàn).</li>
+  <li>Nếu buộc phải gọi lệnh:
+    <ul>
+      <li><strong>Whitelisting chặt chẽ</strong> đầu vào (ví dụ IP/hostname hợp lệ bằng regex + xác thực thêm).</li>
+      <li><strong>Không cho ký tự đặc biệt</strong> của shell (<code class="language-plaintext highlighter-rouge">; &amp; | $ ( ) \</code> ‘ “ &lt; &gt;` …), không cho khoảng trắng thừa.</li>
+      <li><strong>Tách tham số</strong> thay vì ghép chuỗi (ngay cả trong các wrapper: <code class="language-plaintext highlighter-rouge">execve</code>, <code class="language-plaintext highlighter-rouge">ProcessBuilder</code>, <code class="language-plaintext highlighter-rouge">subprocess.run([...], shell=False)</code>).</li>
+      <li><strong>Giảm quyền tiến trình</strong> (không chạy dưới root; bật AppArmor/SELinux nếu có).</li>
+      <li><strong>Ghi log &amp; monitor</strong> lệnh bất thường; bật <strong>Alert</strong> khi phát hiện chuỗi nghi vấn.</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h2 id="9-quick-checklist-cho-chính-mình">9) Quick checklist cho chính mình</h2>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Có đang ghép chuỗi lệnh chứa input user?</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Có check “đúng kiểu dữ liệu” (IP/hostname/port) hay chỉ lọc qua loa?</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Có cách <strong>không dùng shell</strong> để đạt cùng mục tiêu?</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Nếu phải dùng shell: đã chặn ký tự đặc biệt, tách tham số, hạ quyền, bật giám sát?</li>
+</ul>
+
+<hr />
+
+<h2 id="10-tham-khảo">10) Tham khảo</h2>
+<ul>
+  <li>OWASP (Command Injection): https://owasp.org/www-community/attacks/Command_Injection</li>
+  <li>Explainshell (giải thích tham số lệnh): https://explainshell.com/</li>
+  <li>Một số bài viết/vụ việc tiêu biểu:
+    <ul>
+      <li>SaltStack command injection (CVE-2020-11651/11652)</li>
+      <li>Cisco RV / TP-Link / WD MyCloud: các báo cáo RCE qua UI router/NAS trong nhiều năm</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+</main>
+
+
+  <!-- Back -->
+  <p style="margin-top: 2rem; text-align: center;">
+    <a href="/notes/" class="back-notes">⬅ Back to Notes</a>
+  </p>
+
+
+<!-- ===== Shared Styles (no Liquid inside) ===== -->
+<style>
+  :root{
+    --bar-h: 48px;
+    --btn-w: 78px; --btn-h: 112px; --btn-right: 22px; --btn-bottom: 22px;
+  }
+  @media (max-width:480px){
+    :root{ --btn-w:66px; --btn-h:98px; --btn-right:16px; --btn-bottom:16px; }
+  }
+
+  /* Breadcrumb */
+  .breadcrumbs{
+    position: sticky; top: 0; z-index: 1000;
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .4rem .8rem; margin: .75rem 0 1rem;
+    background:#111; border:1px solid #0f0; border-radius:9999px;
+    box-shadow:0 0 6px rgba(0,255,0,.25); max-width:100%; overflow:auto;
+  }
+  .breadcrumbs a{ color:#4af; text-decoration:none; font-weight:600; }
+  .breadcrumbs span{ color:#fff; font-weight:700; }
+
+  main h2, main h3{ scroll-margin-top: calc(var(--bar-h) + 12px); }
+
+  /* TOC */
+  .toc{
+    border-left:3px solid #6f6; margin:.5rem 0 1.2rem; background:#0b0b0b;
+    border-radius:8px; box-shadow:0 0 6px rgba(0,255,0,.15); overflow:hidden;
+  }
+  .toc-head{ display:flex; align-items:center; gap:.5rem; padding:.55rem .9rem; cursor:pointer; user-select:none; }
+  .toc-caret{ transition: transform .2s; }
+  .toc[aria-expanded="true"] .toc-caret,.toc:not(.collapsed) .toc-caret{ transform: rotate(90deg); }
+  .toc-body{ overflow:hidden; max-height:0; transition:max-height .25s, padding .25s; padding:0 .9rem; }
+  .toc:not(.collapsed) .toc-body{ padding:.2rem .9rem .8rem; max-height:1200px; }
+  .toc-body ul{ list-style:none; padding:0; margin:0; }
+  .toc-body li{ margin:.2rem 0; }
+  .toc-body li[data-level="3"]{ margin-left:1rem; }
+
+  /* Back link pill */
+  .back-notes{
+    display:inline-block; padding:.6rem 1.2rem; border:1px solid #0f0; border-radius:9999px;
+    color:#4af; text-decoration:none; font-weight:600; background:#111; box-shadow:0 0 6px rgba(0,255,0,.25);
+    transition:all .25s;
+  }
+  .back-notes:hover{ background:#0f0; color:#111; }
+
+  /* ===== Back-to-Top Cyberpunk (NO progress inside) ===== */
+  #backTop{
+    position: fixed; right: var(--btn-right); bottom: var(--btn-bottom); z-index: 9999;
+    width: var(--btn-w); height: var(--btn-h); border-radius: 14px; cursor: pointer;
+    background: linear-gradient(180deg,#0b0b0b 0%, #050505 100%);
+    border: 2px solid transparent;
+    box-shadow: 0 0 14px rgba(0,255,170,.45),
+                0 0 26px rgba(0,140,255,.35),
+                inset 0 0 12px rgba(0,255,170,.08);
+    display: none; opacity:.98;
+    animation: floatCard 3s ease-in-out infinite;
+    transition: transform .25s, box-shadow .25s, opacity .25s, filter .25s;
+  }
+  #backTop::before{
+    content:""; position:absolute; inset:-2px; border-radius:16px; z-index:-1;
+    background:conic-gradient(from 0deg,#00ffa6,#00b7ff,#ff2bd6,#00ffa6);
+    filter:blur(6px) saturate(1.4);
+    transition:transform 1.5s linear, filter .5s;
+  }
+  #backTop:hover{
+    box-shadow: 0 0 18px rgba(0,255,170,.65),
+                0 0 36px rgba(0,140,255,.55),
+                inset 0 0 14px rgba(0,255,170,.12);
+    filter:brightness(1.06) contrast(1.08) saturate(1.12);
+    animation:shake .45s cubic-bezier(.36,.07,.19,.97) both, floatCard 3s ease-in-out infinite .45s;
+  }
+  #backTop:hover::before{ transform: rotate(360deg); filter: hue-rotate(360deg) blur(6px) saturate(1.4); }
+  #backTop .arrow{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:26px; color:#fff; text-shadow:0 0 8px rgba(0,255,170,.9),0 0 16px rgba(0,140,255,.7);
+    pointer-events:none;
+  }
+
+  /* ===== Mini progress ring (only one we keep) ===== */
+  #scrollProgressMini{
+    position: fixed;
+    right: 22px; bottom: 150px; /* tạm; JS sẽ đặt lại theo #backTop */
+    width: 52px; height: 52px;
+    display: none; align-items: center; justify-content: center;
+    border-radius: 50%; background: #0b0b0b;
+    box-shadow: 0 0 8px rgba(0,255,170,.4), 0 0 16px rgba(0,140,255,.3);
+    z-index: 9999;
+  }
+  #scrollProgressMini .ring{ position:absolute; inset:4px; transform: rotate(-90deg); }
+  #scrollProgressMini .ring-bg{ fill:none; stroke:rgba(255,255,255,.18); stroke-width:4; }
+  #scrollProgressMini .ring-fg{
+    fill:none; stroke:#a3ff12; stroke-width:4; stroke-linecap:round;
+    stroke-dasharray:1 120; stroke-dashoffset:0;
+    filter:drop-shadow(0 0 4px rgba(163,255,18,.7));
+  }
+  #scrollProgressMini .percent{
+    position:relative; font-size:.72rem; font-weight:800; color:#a3ff12; text-shadow:0 0 4px rgba(163,255,18,.6);
+  }
+  @media (max-width:480px){
+    #scrollProgressMini{ width:46px; height:46px; }
+    #scrollProgressMini .percent{ font-size:.68rem; }
+    #scrollProgressMini .ring{ inset:3px; }
+  }
+
+  /* Animations */
+  @keyframes floatCard{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes shake{ 10%,90%{transform:translate3d(-1px,0,0)} 20%,80%{transform:translate3d(2px,0,0)} 30%,50%,70%{transform:translate3d(-3px,0,0)} 40%,60%{transform:translate3d(3px,0,0)} }
+</style><style>.page-header .project-name, .page-header .project-tagline{ display:none; }</style><!-- Back-to-Top card (no progress inside) -->
+<button id="backTop" type="button" title="Back to top" aria-label="Back to top">
+  <span class="arrow">▲</span>
+</button>
+
+<!-- Mini progress ring above the card -->
+<div id="scrollProgressMini" aria-hidden="true" title="Scroll progress">
+  <svg class="ring" viewBox="0 0 44 44" width="44" height="44">
+    <circle class="ring-bg" cx="22" cy="22" r="19.5"></circle>
+    <circle class="ring-fg" cx="22" cy="22" r="19.5"></circle>
+  </svg>
+  <span class="percent">0%</span>
+</div>
+
+<script>
+  /* Dedupe: remove duplicated includes if any */
+  (function(){['#backTop','#scrollProgressMini'].forEach(sel=>{
+    const nodes=document.querySelectorAll(sel); if(nodes.length>1) nodes.forEach((el,i)=>{ if(i>0) el.remove(); });
+  });})();
+
+  // Build TOC (unchanged)
+  (function () {
+    const toc = document.getElementById("toc"); if (!toc) return;
+    const heads = [...document.querySelectorAll("main h2, main h3")];
+    if (!heads.length) { toc.remove(); return; }
+    heads.forEach(h => { if (!h.id) h.id = h.textContent.trim().toLowerCase().replace(/[^\w\- ]+/g,"").replace(/\s+/g,"-"); });
+    const ul = document.createElement("ul");
+    heads.forEach(h => { const li=document.createElement("li"); li.setAttribute("data-level", h.tagName==="H3"?"3":"2"); const a=document.createElement("a"); a.href="#"+h.id; a.textContent=h.textContent; li.appendChild(a); ul.appendChild(li); });
+    toc.querySelector(".toc-body").appendChild(ul);
+    const key="toc-state:"+location.pathname, preferOpen=matchMedia("(min-width:900px)").matches, saved=localStorage.getItem(key), startOpen=saved? saved==="open" : preferOpen;
+    setExpanded(startOpen);
+    function setExpanded(open){ toc.classList.toggle("collapsed", !open); toc.setAttribute("aria-expanded", String(open)); toc.querySelector(".toc-head").setAttribute("aria-expanded", String(open)); }
+    function toggle(){ const open=toc.classList.contains("collapsed"); setExpanded(open); localStorage.setItem(key, open ? "open" : "closed"); }
+    const head=toc.querySelector(".toc-head"); head.addEventListener("click", toggle);
+    head.addEventListener("keydown", e => { if (e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); }});
+  })();
+
+  // Back-to-Top + Mini progress ring (only mini shows progress)
+  (function () {
+    const btn  = document.getElementById("backTop");
+    const mini = document.getElementById("scrollProgressMini");
+    const miniTxt  = mini?.querySelector(".percent");
+    const miniRing = mini?.querySelector(".ring-fg");
+    if (!btn || !mini || !miniTxt || !miniRing) return;
+
+    // prepare ring
+    const r = parseFloat(miniRing.getAttribute("r") || "19.5");
+    const C = 2 * Math.PI * r;
+    miniRing.style.strokeDasharray = `${C} ${C}`;
+    miniRing.style.strokeDashoffset = `${C}`;
+
+    function setProgress(p){
+      miniRing.style.strokeDashoffset = String(C - (p/100)*C);
+      miniTxt.textContent = p + "%";
+    }
+
+    // place mini just above the card
+    function placeMini(){
+      const gap = 24;
+      const rect = btn.getBoundingClientRect();
+      mini.style.right  = (window.innerWidth  - rect.right) + "px";
+      mini.style.bottom = (window.innerHeight - rect.top + gap) + "px";
+    }
+
+    function update(){
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      const sc  = max > 0 ? Math.round((doc.scrollTop / max) * 100) : 0;
+      setProgress(sc);
+      const show = sc > 3;
+      btn.style.display  = show ? "block" : "none";
+      mini.style.display = show ? "flex"  : "none";
+      if (show) placeMini();
+    }
+
+    window.addEventListener("scroll", update, { passive:true });
+    window.addEventListener("resize", () => { if (mini.style.display !== "none") placeMini(); });
+    update();
+
+    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  })();
+</script>
+
+
+    </main>
+
+    <!-- Cursor CSS + JS (anti-flicker) -->
+    <style>
+  :root{
+    --cursor-normal: url('/assets/images/cursor-normal-32.png') 4 4, auto;
+    --cursor-hover:  url('/assets/images/cursor-hover-32.png') 4 4, auto;
+  }
+
+  /* Mặc định: phủ custom cursor toàn trang (ưu tiên cao) */
+  html, body, * {
+    cursor: var(--cursor-normal) !important;
+  }
+
+  /* Tất cả trạng thái của link & vùng clickable -> dùng hover cursor */
+  a, a *,
+  a:link, a:link *,
+  a:visited, a:visited *,
+  a:hover, a:hover *,
+  a:focus, a:focus *,
+  a:active, a:active *,
+  a:focus-visible, a:focus-visible *,
+  button, button *,
+  [role="button"], [role="button"] *,
+  [onclick], [onclick] *,
+  input[type="button"], input[type="submit"],
+  label[for], summary {
+    cursor: var(--cursor-hover) !important;
+  }
+
+  /* Khi đang giữ chuột / đang điều hướng: ép toàn trang sang hover-cursor */
+  html.is-mousedown *, html.is-mousedown *::before, html.is-mousedown *::after,
+  html.is-mousedown svg, html.is-mousedown svg *,
+  html.is-navigating *, html.is-navigating *::before, html.is-navigating *::after,
+  html.is-navigating svg, html.is-navigating svg *{
+    cursor: var(--cursor-hover) !important;
+  }
+
+  /* Vùng nhập liệu giữ I-beam (kể cả khi mousedown/navigating) */
+  input, textarea, [contenteditable="true"]{
+    cursor: text !important;
+  }
+  html.is-mousedown input,
+  html.is-mousedown textarea,
+  html.is-mousedown [contenteditable="true"],
+  html.is-navigating input,
+  html.is-navigating textarea,
+  html.is-navigating [contenteditable="true"]{
+    cursor: text !important;
+  }
+
+  /* Retina 2x: dùng ảnh 48px, hotspot 6,6 (sắc nét) */
+  @media (min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2){
+    :root{
+      --cursor-normal: url('/assets/images/cursor-normal-48.png') 6 6, auto;
+      --cursor-hover:  url('/assets/images/cursor-hover-48.png') 6 6, auto;
+    }
+  }
+
+  /* Thiết bị cảm ứng: trả về mặc định */
+  @media (pointer: coarse){
+    html, body, *, *::before, *::after{
+      cursor: auto !important;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const root = document.documentElement;
+
+    const addDown = () => root.classList.add('is-mousedown');
+    const rmDown  = () => root.classList.remove('is-mousedown');
+    const addNav  = () => root.classList.add('is-navigating');
+    const rmNav   = () => root.classList.remove('is-navigating');
+
+    /* Dùng capture để chạy TRƯỚC khi UA áp :active */
+    window.addEventListener('mousedown', addDown,   { passive: true, capture: true });
+    window.addEventListener('pointerdown', addDown, { passive: true, capture: true });
+
+    window.addEventListener('mouseup', rmDown,       { passive: true });
+    window.addEventListener('pointerup', rmDown,     { passive: true });
+    window.addEventListener('pointercancel', rmDown, { passive: true });
+    window.addEventListener('dragend', rmDown,       { passive: true });
+
+    /* Click link -> bật cờ điều hướng ngay.
+       Nếu là SPA/preventDefault, gỡ cờ sau 200ms để tránh kẹt trạng thái. */
+    document.addEventListener('click', (e) => {
+      const isLeft = (e.button === 0);
+      const el = e.target.closest('a, [data-href]');
+      if (!el || !isLeft) return;
+
+      if ((el.tagName === 'A' && el.href) || el.hasAttribute('data-href')) {
+        addNav();
+        setTimeout(rmNav, 200);
+      }
+    }, { passive: true, capture: true });
+
+    /* Khi sắp rời trang thực sự */
+    window.addEventListener('beforeunload', addNav, { once: true });
+    window.addEventListener('pagehide',     addNav, { once: true });
+
+    /* Quay lại từ bfcache: dọn lại cờ */
+    window.addEventListener('pageshow', () => { rmDown(); rmNav(); }, { passive: true });
+  })();
+</script>
+
+  </body>
+</html>

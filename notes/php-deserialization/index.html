@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      PHP Deserialization | PMD • Notes
+    </title>
+
+    <!-- Preload ảnh cursor để load nhanh -->
+    <link rel="preload" href="/assets/images/cursor-normal-32.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-hover-32.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-normal-48.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-hover-48.png" as="image">
+
+    <!-- CSS theme chính -->
+    <link
+      rel="stylesheet"
+      href="/assets/css/style.css?v="
+    />
+
+    <!-- Thêm CSS cho Portfolio -->
+    <link rel="stylesheet" href="/assets/css/portfolio.css">
+
+    <!-- Fallback minimal nếu theme lỗi -->
+    <style>
+      html, body { background:#0b0b0b; color:#eaeaea; margin:0; padding:0; }
+      body {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                     "Liberation Mono","Courier New", monospace;
+      }
+      main img, .markdown-body img,
+      main svg, .markdown-body svg,
+      main canvas, .markdown-body canvas {
+        max-width:100%; height:auto; display:block;
+      }
+      main, .markdown-body, main h1, main h2, main h3 {
+        overflow-wrap:anywhere; word-break:break-word;
+      }
+      main pre, .markdown-body pre {
+        overflow-x:auto; white-space:pre; -webkit-overflow-scrolling:touch;
+      }
+      main table, .markdown-body table {
+        display:block; width:100%; overflow-x:auto;
+      }
+    </style>
+
+    <script>
+  (function () {
+    function setFav(emoji) {
+      let link = document.querySelector(
+        "link#dynamic-favicon[rel='icon']"
+      );
+      if (!link) {
+        link = document.createElement("link");
+        link.id = "dynamic-favicon";
+        link.rel = "icon";
+        link.type = "image/svg+xml";
+        document.head.appendChild(link);
+      }
+
+      const svg =
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>" +
+        "<text x='50' y='70' text-anchor='middle' font-size='90'>" +
+        emoji +
+        "</text>" +
+        "</svg>";
+
+      // Né cache
+      link.href =
+        "data:image/svg+xml," +
+        encodeURIComponent(svg) +
+        "#v=" +
+        Date.now();
+    }
+
+    function pickEmojiFromH1() {
+      const h1 = document.querySelector("main h1, h1");
+      if (!h1) return null;
+      const txt = h1.textContent || "";
+
+      // Unicode property (browser mới)
+      try {
+        const m = txt.match(/\p{Extended_Pictographic}/u);
+        if (m && m[0]) return m[0];
+      } catch (e) {}
+
+      // Fallback dải thường gặp
+      const m2 = txt.match(
+        /[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}]/u
+      );
+      return m2 ? m2[0] : null;
+    }
+
+    function init() {
+      const emoji = pickEmojiFromH1() || "🛡️";
+      setFav(emoji);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+</script>
+
+  </head>
+
+  <body>
+    <!-- Navbar chỉ hiện khi có show_nav: true -->
+    
+
+    <!-- Nội dung chính -->
+    <main class="page-wrap" style="max-width: 980px; margin: 2rem auto; padding: 0 1rem;">
+      
+
+
+<!-- Breadcrumb -->
+<div class="breadcrumbs">
+  <a href="/">🏠 Home</a>
+  &nbsp;/&nbsp;
+  <a href="/notes/">📓 Notes</a>
+  
+    &nbsp;/&nbsp;<span>PHP Deserialization</span>
+  
+</div>
+
+<main>
+  
+    <!-- TOC -->
+    <nav id="toc" class="toc collapsed" aria-expanded="false" aria-controls="toc-body">
+      <div class="toc-head" role="button" aria-expanded="false" tabindex="0">
+        <span class="toc-caret">▸</span>
+        <strong>Contents</strong>
+      </div>
+      <div id="toc-body" class="toc-body"></div>
+    </nav>
+  
+
+  <h1 id="-php-deserialization--khi-dữ-liệu-hóa-trang-thành-ác-mộng">🐘 PHP Deserialization – Khi dữ liệu hóa trang thành… ác mộng</h1>
+
+<blockquote>
+  <p>Mục tiêu: hiểu <strong>serialize / unserialize</strong>, vì sao <strong>PHP Object Injection</strong> nguy hiểm, <strong>POP chain</strong> là gì, và cách <strong>phòng thủ</strong>.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="1-khởi-động-nhanh-object--string--object">1) Khởi động nhanh: Object → String → Object</h2>
+
+<h3 id="11-serialize-là-gì">1.1 <code class="language-plaintext highlighter-rouge">serialize()</code> là gì?</h3>
+
+<p>Chuyển <strong>object/array</strong> thành <strong>chuỗi</strong> để lưu trữ hoặc truyền đi (cookie, file, DB…).</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="nv">$data</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"name"</span> <span class="o">=&gt;</span> <span class="s2">"Ash"</span><span class="p">,</span> <span class="s2">"pokemon"</span> <span class="o">=&gt;</span> <span class="s2">"Pikachu"</span><span class="p">];</span>
+<span class="nv">$s</span> <span class="o">=</span> <span class="nb">serialize</span><span class="p">(</span><span class="nv">$data</span><span class="p">);</span>
+<span class="k">echo</span> <span class="nv">$s</span><span class="p">;</span>
+<span class="c1">// a:2:{s:4:"name";s:3:"Ash";s:7:"pokemon";s:7:"Pikachu";}</span>
+</code></pre></div></div>
+
+<p>🕹️ <strong>Ví dụ đời thường – Save Game</strong>: trạng thái nhân vật (HP, tiền, đồ nghề) được “đóng hộp” thành chuỗi rồi ghi vào <code class="language-plaintext highlighter-rouge">save.dat</code>.</p>
+
+<h3 id="12-unserialize-là-gì">1.2 <code class="language-plaintext highlighter-rouge">unserialize()</code> là gì?</h3>
+
+<p>Mở hộp chuỗi → trả lại <strong>giá trị/object</strong> ban đầu.</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="nv">$loaded</span> <span class="o">=</span> <span class="nb">unserialize</span><span class="p">(</span><span class="nv">$s</span><span class="p">);</span>
+<span class="nb">print_r</span><span class="p">(</span><span class="nv">$loaded</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>🕹️ <strong>Load Game</strong>: đọc <code class="language-plaintext highlighter-rouge">save.dat</code> → <code class="language-plaintext highlighter-rouge">unserialize()</code> → nhân vật sống lại như cũ.</p>
+
+<blockquote>
+  <p>⚠️ Vấn đề: nếu <strong>người dùng</strong> điều khiển được chuỗi đầu vào của <code class="language-plaintext highlighter-rouge">unserialize()</code>, họ có thể “triệu hồi” <strong>object đặc biệt</strong> để kích hoạt hành vi ngoài ý muốn.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="2-magic-methods--cửa-bí-mật-trong-oop">2) Magic Methods – “cửa bí mật” trong OOP</h2>
+
+<p><em>(OOP = Object Oriented Programming – lập trình hướng đối tượng)</em></p>
+
+<p>Một số <strong>magic methods</strong> PHP tự động gọi trong các ngữ cảnh nhất định:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">__construct()</code> 🏗️: chạy khi <strong>khởi tạo</strong> object.</li>
+  <li><code class="language-plaintext highlighter-rouge">__destruct()</code> 🧹: chạy khi object bị <strong>hủy</strong> (cuối request) → “dọn nhà”.</li>
+  <li><code class="language-plaintext highlighter-rouge">__toString()</code> 🗣️: chạy khi object cần <strong>in ra chuỗi</strong> (echo).</li>
+  <li><code class="language-plaintext highlighter-rouge">__wakeup()</code> ⏰: chạy <strong>ngay sau</strong> khi <strong>unserialize</strong> một object.</li>
+  <li><code class="language-plaintext highlighter-rouge">__sleep()</code> 😴: chạy <strong>trước khi</strong> serialize (chọn thuộc tính để lưu).</li>
+  <li><code class="language-plaintext highlighter-rouge">__invoke()</code> ☎️: chạy khi gọi object như <strong>hàm</strong>.</li>
+</ul>
+
+<p>Nếu attacker điều khiển <strong>thuộc tính</strong> của object (property) được tạo ra bởi <code class="language-plaintext highlighter-rouge">unserialize()</code>, các magic methods này có thể vô tình <strong>gọi code nguy hiểm</strong>.</p>
+
+<h3 id="ví-dụ-nhỏ--__tostring-bất-ngờ-chạy">Ví dụ nhỏ – <code class="language-plaintext highlighter-rouge">__toString()</code> bất ngờ chạy</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Badge</span> <span class="p">{</span>
+  <span class="k">public</span> <span class="nv">$level</span><span class="p">;</span>
+  <span class="k">public</span> <span class="k">function</span> <span class="n">__toString</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="s2">"LV-"</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">level</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">function</span> <span class="n">greet</span><span class="p">(</span><span class="nv">$x</span><span class="p">)</span> <span class="p">{</span> <span class="k">echo</span> <span class="s2">"Hello "</span> <span class="mf">.</span> <span class="nv">$x</span><span class="p">;</span> <span class="p">}</span> <span class="c1">// ép $x thành chuỗi → __toString()</span>
+<span class="c1">// Nếu $x đến từ unserialize(), attacker có thể set $level = ""...</span>
+</code></pre></div></div>
+
+<h3 id="ví-dụ-nhỏ--__wakeup-nguy-cơ-cao">Ví dụ nhỏ – <code class="language-plaintext highlighter-rouge">__wakeup()</code> nguy cơ cao</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Avatar</span> <span class="p">{</span>
+  <span class="k">public</span> <span class="nv">$url</span><span class="p">;</span>
+  <span class="k">public</span> <span class="k">function</span> <span class="n">__wakeup</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Ý đồ tốt: tải ảnh đại diện khi “hồi sinh”</span>
+    <span class="nb">file_get_contents</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">url</span><span class="p">);</span> <span class="c1">// Nếu url do user set → SSRF!</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// unserialize('O:6:"Avatar":1:{s:3:"url";s:18:"http://169.254.169.254/";}');</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="3-pop--property-oriented-programming">3) POP – Property Oriented Programming</h2>
+
+<p><strong>POP</strong> = “lập trình bằng thuộc tính”: attacker <strong>set property</strong> rồi để <strong>magic method</strong> tự chạy, tạo thành <strong>POP chain</strong> (chuỗi gadget).</p>
+
+<h3 id="31-ví-dụ-code-thực-tế-tối-giản-dễ-hiểu">3.1 Ví dụ code thực tế (tối giản, dễ hiểu)</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="kd">class</span> <span class="nc">Logger</span> <span class="p">{</span>
+  <span class="k">public</span> <span class="nv">$filename</span><span class="p">;</span> <span class="c1">// bị attacker kiểm soát</span>
+  <span class="k">public</span> <span class="k">function</span> <span class="n">close</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// tưởng hiền lành: xóa file log cũ</span>
+    <span class="o">@</span><span class="nb">unlink</span><span class="p">(</span><span class="s2">"/var/log/app/"</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">filename</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">class</span> <span class="nc">Database</span> <span class="p">{</span>
+  <span class="k">public</span> <span class="nv">$conn</span><span class="p">;</span>
+  <span class="k">public</span> <span class="k">function</span> <span class="n">__destruct</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// cleanup cuối request</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">conn</span><span class="p">)</span> <span class="p">{</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">conn</span><span class="o">-&gt;</span><span class="nf">close</span><span class="p">();</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// ❌ Code nguy hiểm</span>
+<span class="nv">$payload</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'p'</span><span class="p">]</span> <span class="o">??</span> <span class="s1">''</span><span class="p">;</span>
+<span class="nv">$obj</span> <span class="o">=</span> <span class="nb">unserialize</span><span class="p">(</span><span class="nv">$payload</span><span class="p">);</span> <span class="c1">// user-controlled!</span>
+</code></pre></div></div>
+
+<p><strong>Kịch bản tấn công:</strong></p>
+
+<ol>
+  <li>Attacker tạo object <strong>Logger</strong> với <code class="language-plaintext highlighter-rouge">$filename = "../../www/index.php"</code> (Path Traversal).</li>
+  <li>Nhét Logger vào property <code class="language-plaintext highlighter-rouge">$conn</code> của <strong>Database</strong>.</li>
+  <li>Khi request kết thúc → <code class="language-plaintext highlighter-rouge">Database::__destruct()</code> gọi <code class="language-plaintext highlighter-rouge">$conn-&gt;close()</code> → <code class="language-plaintext highlighter-rouge">Logger::close()</code> chạy → <strong>unlink</strong> file nhạy cảm.</li>
+</ol>
+
+<p><strong>Payload minh họa</strong> (mô phỏng, tùy phiên bản PHP/class):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>O:8:"Database":1:{s:4:"conn";O:6:"Logger":1:{s:8:"filename";s:24:"../../www/index.php";}}
+</code></pre></div></div>
+
+<h3 id="32-flow-minh-họa-domino-đổ">3.2 Flow minh họa (domino đổ)</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>User input (serialized)
+        ↓
+unserialize()  →  tạo object + property theo ý attacker
+        ↓
+magic method kích hoạt (wakeup / destruct / toString)
+        ↓
+gadget 1  →  gadget 2  →  gadget 3 …
+        ↓
+File delete / SSRF / LFI / RCE (Remote Code Execution)
+</code></pre></div></div>
+
+<blockquote>
+  <p>Liên hệ vui: ghép <strong>lego</strong> từ các mảnh class sẵn có → tạo robot phá cửa. Dev không đưa robot, nhưng vô tình đưa đủ mảnh lego.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="4-thêm-vài-món-dễ-dính-lỗi">4) Thêm vài “món” dễ dính lỗi</h2>
+
+<h3 id="41-cachesession-tự-chế-bằng-serialize">4.1 Cache/Session tự chế bằng serialize</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Lưu session vào DB</span>
+<span class="nv">$db</span><span class="o">-&gt;</span><span class="nf">save</span><span class="p">(</span><span class="s2">"sess_</span><span class="si">{</span><span class="nv">$uid</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="nb">serialize</span><span class="p">(</span><span class="nv">$cart</span><span class="p">));</span>
+<span class="c1">// Khôi phục</span>
+<span class="nv">$cart</span> <span class="o">=</span> <span class="nb">unserialize</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'cart'</span><span class="p">]</span> <span class="o">??</span> <span class="s2">""</span><span class="p">);</span> <span class="c1">// ❌ user-controlled → toang</span>
+</code></pre></div></div>
+
+<p>👉 Dùng <code class="language-plaintext highlighter-rouge">json_encode()</code>/<code class="language-plaintext highlighter-rouge">json_decode(true)</code> an toàn hơn (chỉ mảng/chuỗi/số).</p>
+
+<h3 id="42-logqueuejob-có-hành-vi-fileexec">4.2 Log/Queue/Job có hành vi file/exec</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Job</span> <span class="p">{</span>
+  <span class="k">public</span> <span class="nv">$cmd</span><span class="p">;</span>
+  <span class="k">function</span> <span class="n">__destruct</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">cmd</span><span class="p">)</span> <span class="p">{</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">cmd</span><span class="p">);</span> <span class="p">}</span> <span class="c1">// ❌</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// Payload set $cmd="id" → RCE</span>
+</code></pre></div></div>
+
+<h3 id="43-tự-động-tải-tài-nguyên-trong-__wakeup">4.3 Tự động tải tài nguyên trong <code class="language-plaintext highlighter-rouge">__wakeup()</code></h3>
+
+<p>Đừng gọi <strong>HTTP/FS</strong> trong <code class="language-plaintext highlighter-rouge">__wakeup()</code> với dữ liệu không kiểm soát → dễ SSRF/LFI.</p>
+
+<hr />
+
+<h2 id="5-phòng-thủ--làm-sao-để-không-toang">5) Phòng thủ – Làm sao để không “toang”</h2>
+
+<h3 id="51-tránh-unserialize-với-dữ-liệu-không-tin-cậy">5.1 Tránh <code class="language-plaintext highlighter-rouge">unserialize()</code> với dữ liệu không tin cậy</h3>
+
+<ul>
+  <li>Thay bằng <strong>JSON</strong>:
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$safe</span> <span class="o">=</span> <span class="nb">json_decode</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'data'</span><span class="p">]</span> <span class="o">??</span> <span class="s2">"{}"</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="no">JSON_THROW_ON_ERROR</span><span class="p">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Ưu điểm: chỉ tạo <strong>array/scalar</strong>, <strong>không sinh object</strong>.</li>
+</ul>
+
+<h3 id="52-nếu-bắt-buộc-phải-unserialize">5.2 Nếu <em>bắt buộc</em> phải unserialize</h3>
+
+<ul>
+  <li>PHP 7+: dùng <strong>allowed classes</strong> để chặn tạo object lạ:
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$obj</span> <span class="o">=</span> <span class="nb">unserialize</span><span class="p">(</span><span class="nv">$payload</span><span class="p">,</span> <span class="p">[</span><span class="s1">'allowed_classes'</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="s1">'MyDto'</span><span class="p">,</span><span class="s1">'SafeClass'</span><span class="p">]]);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Tắt hoặc tránh logic nguy hiểm trong <code class="language-plaintext highlighter-rouge">__wakeup()</code> / <code class="language-plaintext highlighter-rouge">__destruct()</code>.</li>
+  <li>Với file path: dùng <strong>allowlist</strong>, chặn <code class="language-plaintext highlighter-rouge">../</code>, chuẩn hóa đường dẫn thật (<code class="language-plaintext highlighter-rouge">realpath</code>).</li>
+</ul>
+
+<h3 id="53-code-hygiene">5.3 Code hygiene</h3>
+
+<ul>
+  <li><strong>Không</strong> thực thi shell (<code class="language-plaintext highlighter-rouge">system/exec/shell_exec/passthru</code>) với dữ liệu chưa kiểm soát.</li>
+  <li><strong>Không</strong> thao tác file nhạy cảm trong cleanup (destructor).</li>
+  <li>Review class nào có <strong>side-effect</strong> khi khởi tạo/hủy → cẩn thận khi nó có thể được tạo từ unserialize.</li>
+</ul>
+
+<h3 id="54-phát-hiện-trong-thực-tế-từ-góc-pentest">5.4 Phát hiện trong thực tế (từ góc pentest)</h3>
+
+<ul>
+  <li>Tìm chỗ app xử lý cookie, form, hidden field, header có chuỗi kiểu <code class="language-plaintext highlighter-rouge">a:1:{...}</code>.</li>
+  <li>Thử payload vô hại trước (để dò <code class="language-plaintext highlighter-rouge">__wakeup()</code>):<code class="language-plaintext highlighter-rouge">O:4:"Test":0:{}</code> (class tồn tại → báo lỗi/trace khác thường?).</li>
+  <li>Tận dụng lỗi/exception để hiểu chain; xây PoC <strong>nhỏ → lớn</strong> (domino).</li>
+</ul>
+
+<hr />
+
+<h2 id="6-checklist-nhanh">6) Checklist nhanh</h2>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Không dùng <code class="language-plaintext highlighter-rouge">unserialize()</code> với input từ user.</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Nếu dùng → <code class="language-plaintext highlighter-rouge">allowed_classes</code> + validate kỹ.</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Tránh side-effect nguy hiểm trong <code class="language-plaintext highlighter-rouge">__wakeup()</code> / <code class="language-plaintext highlighter-rouge">__destruct()</code> / <code class="language-plaintext highlighter-rouge">__toString()</code>.</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Dùng JSON cho dữ liệu cấu trúc trao đổi giữa client–server.</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Kiểm soát đường dẫn file (allowlist, <code class="language-plaintext highlighter-rouge">realpath</code>, chặn <code class="language-plaintext highlighter-rouge">..</code>).</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Hạn chế quyền process (không cần root), tách quyền đọc/ghi.</li>
+</ul>
+
+<hr />
+
+<h2 id="7-từ-điển-mini">7) Từ điển mini</h2>
+
+<ul>
+  <li><strong>OOP</strong>: <em>Object Oriented Programming</em> – lập trình hướng đối tượng.</li>
+  <li><strong>POP</strong>: <em>Property Oriented Programming</em> – khai thác dựa trên thuộc tính.</li>
+  <li><strong>RCE</strong>: <em>Remote Code Execution</em> – thực thi mã từ xa.</li>
+  <li><strong>LFI/RFI</strong>: <em>Local/Remote File Inclusion</em> – đọc/nhúng file cục bộ/từ xa.</li>
+  <li><strong>SQLi</strong>: <em>SQL Injection</em> – chèn câu lệnh SQL.</li>
+  <li><strong>PoC</strong>: <em>Proof of Concept</em> – mẫu chứng minh khai thác.</li>
+</ul>
+
+<hr />
+
+<h2 id="8-lời-kết">8) Lời kết</h2>
+
+<blockquote>
+  <p>“Đừng để user viết nhật ký hộ bạn. Nó sẽ không ghi <em>hôm nay trời đẹp</em>, mà sẽ ghi: <code class="language-plaintext highlighter-rouge">rm -rf /</code>.” 😅
+Giữ object của bạn <strong>hiền hòa</strong> bằng cách <strong>không unserialize dữ liệu lạ</strong>. Khi buộc phải dùng – hãy <strong>xích nó</strong> bằng <code class="language-plaintext highlighter-rouge">allowed_classes</code>, <strong>rào</strong> bằng JSON, và <strong>dọn nhà</strong> (destructor) một cách an toàn.</p>
+</blockquote>
+
+</main>
+
+
+  <!-- Back -->
+  <p style="margin-top: 2rem; text-align: center;">
+    <a href="/notes/" class="back-notes">⬅ Back to Notes</a>
+  </p>
+
+
+<!-- ===== Shared Styles (no Liquid inside) ===== -->
+<style>
+  :root{
+    --bar-h: 48px;
+    --btn-w: 78px; --btn-h: 112px; --btn-right: 22px; --btn-bottom: 22px;
+  }
+  @media (max-width:480px){
+    :root{ --btn-w:66px; --btn-h:98px; --btn-right:16px; --btn-bottom:16px; }
+  }
+
+  /* Breadcrumb */
+  .breadcrumbs{
+    position: sticky; top: 0; z-index: 1000;
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .4rem .8rem; margin: .75rem 0 1rem;
+    background:#111; border:1px solid #0f0; border-radius:9999px;
+    box-shadow:0 0 6px rgba(0,255,0,.25); max-width:100%; overflow:auto;
+  }
+  .breadcrumbs a{ color:#4af; text-decoration:none; font-weight:600; }
+  .breadcrumbs span{ color:#fff; font-weight:700; }
+
+  main h2, main h3{ scroll-margin-top: calc(var(--bar-h) + 12px); }
+
+  /* TOC */
+  .toc{
+    border-left:3px solid #6f6; margin:.5rem 0 1.2rem; background:#0b0b0b;
+    border-radius:8px; box-shadow:0 0 6px rgba(0,255,0,.15); overflow:hidden;
+  }
+  .toc-head{ display:flex; align-items:center; gap:.5rem; padding:.55rem .9rem; cursor:pointer; user-select:none; }
+  .toc-caret{ transition: transform .2s; }
+  .toc[aria-expanded="true"] .toc-caret,.toc:not(.collapsed) .toc-caret{ transform: rotate(90deg); }
+  .toc-body{ overflow:hidden; max-height:0; transition:max-height .25s, padding .25s; padding:0 .9rem; }
+  .toc:not(.collapsed) .toc-body{ padding:.2rem .9rem .8rem; max-height:1200px; }
+  .toc-body ul{ list-style:none; padding:0; margin:0; }
+  .toc-body li{ margin:.2rem 0; }
+  .toc-body li[data-level="3"]{ margin-left:1rem; }
+
+  /* Back link pill */
+  .back-notes{
+    display:inline-block; padding:.6rem 1.2rem; border:1px solid #0f0; border-radius:9999px;
+    color:#4af; text-decoration:none; font-weight:600; background:#111; box-shadow:0 0 6px rgba(0,255,0,.25);
+    transition:all .25s;
+  }
+  .back-notes:hover{ background:#0f0; color:#111; }
+
+  /* ===== Back-to-Top Cyberpunk (NO progress inside) ===== */
+  #backTop{
+    position: fixed; right: var(--btn-right); bottom: var(--btn-bottom); z-index: 9999;
+    width: var(--btn-w); height: var(--btn-h); border-radius: 14px; cursor: pointer;
+    background: linear-gradient(180deg,#0b0b0b 0%, #050505 100%);
+    border: 2px solid transparent;
+    box-shadow: 0 0 14px rgba(0,255,170,.45),
+                0 0 26px rgba(0,140,255,.35),
+                inset 0 0 12px rgba(0,255,170,.08);
+    display: none; opacity:.98;
+    animation: floatCard 3s ease-in-out infinite;
+    transition: transform .25s, box-shadow .25s, opacity .25s, filter .25s;
+  }
+  #backTop::before{
+    content:""; position:absolute; inset:-2px; border-radius:16px; z-index:-1;
+    background:conic-gradient(from 0deg,#00ffa6,#00b7ff,#ff2bd6,#00ffa6);
+    filter:blur(6px) saturate(1.4);
+    transition:transform 1.5s linear, filter .5s;
+  }
+  #backTop:hover{
+    box-shadow: 0 0 18px rgba(0,255,170,.65),
+                0 0 36px rgba(0,140,255,.55),
+                inset 0 0 14px rgba(0,255,170,.12);
+    filter:brightness(1.06) contrast(1.08) saturate(1.12);
+    animation:shake .45s cubic-bezier(.36,.07,.19,.97) both, floatCard 3s ease-in-out infinite .45s;
+  }
+  #backTop:hover::before{ transform: rotate(360deg); filter: hue-rotate(360deg) blur(6px) saturate(1.4); }
+  #backTop .arrow{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:26px; color:#fff; text-shadow:0 0 8px rgba(0,255,170,.9),0 0 16px rgba(0,140,255,.7);
+    pointer-events:none;
+  }
+
+  /* ===== Mini progress ring (only one we keep) ===== */
+  #scrollProgressMini{
+    position: fixed;
+    right: 22px; bottom: 150px; /* tạm; JS sẽ đặt lại theo #backTop */
+    width: 52px; height: 52px;
+    display: none; align-items: center; justify-content: center;
+    border-radius: 50%; background: #0b0b0b;
+    box-shadow: 0 0 8px rgba(0,255,170,.4), 0 0 16px rgba(0,140,255,.3);
+    z-index: 9999;
+  }
+  #scrollProgressMini .ring{ position:absolute; inset:4px; transform: rotate(-90deg); }
+  #scrollProgressMini .ring-bg{ fill:none; stroke:rgba(255,255,255,.18); stroke-width:4; }
+  #scrollProgressMini .ring-fg{
+    fill:none; stroke:#a3ff12; stroke-width:4; stroke-linecap:round;
+    stroke-dasharray:1 120; stroke-dashoffset:0;
+    filter:drop-shadow(0 0 4px rgba(163,255,18,.7));
+  }
+  #scrollProgressMini .percent{
+    position:relative; font-size:.72rem; font-weight:800; color:#a3ff12; text-shadow:0 0 4px rgba(163,255,18,.6);
+  }
+  @media (max-width:480px){
+    #scrollProgressMini{ width:46px; height:46px; }
+    #scrollProgressMini .percent{ font-size:.68rem; }
+    #scrollProgressMini .ring{ inset:3px; }
+  }
+
+  /* Animations */
+  @keyframes floatCard{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes shake{ 10%,90%{transform:translate3d(-1px,0,0)} 20%,80%{transform:translate3d(2px,0,0)} 30%,50%,70%{transform:translate3d(-3px,0,0)} 40%,60%{transform:translate3d(3px,0,0)} }
+</style><style>.page-header .project-name, .page-header .project-tagline{ display:none; }</style><!-- Back-to-Top card (no progress inside) -->
+<button id="backTop" type="button" title="Back to top" aria-label="Back to top">
+  <span class="arrow">▲</span>
+</button>
+
+<!-- Mini progress ring above the card -->
+<div id="scrollProgressMini" aria-hidden="true" title="Scroll progress">
+  <svg class="ring" viewBox="0 0 44 44" width="44" height="44">
+    <circle class="ring-bg" cx="22" cy="22" r="19.5"></circle>
+    <circle class="ring-fg" cx="22" cy="22" r="19.5"></circle>
+  </svg>
+  <span class="percent">0%</span>
+</div>
+
+<script>
+  /* Dedupe: remove duplicated includes if any */
+  (function(){['#backTop','#scrollProgressMini'].forEach(sel=>{
+    const nodes=document.querySelectorAll(sel); if(nodes.length>1) nodes.forEach((el,i)=>{ if(i>0) el.remove(); });
+  });})();
+
+  // Build TOC (unchanged)
+  (function () {
+    const toc = document.getElementById("toc"); if (!toc) return;
+    const heads = [...document.querySelectorAll("main h2, main h3")];
+    if (!heads.length) { toc.remove(); return; }
+    heads.forEach(h => { if (!h.id) h.id = h.textContent.trim().toLowerCase().replace(/[^\w\- ]+/g,"").replace(/\s+/g,"-"); });
+    const ul = document.createElement("ul");
+    heads.forEach(h => { const li=document.createElement("li"); li.setAttribute("data-level", h.tagName==="H3"?"3":"2"); const a=document.createElement("a"); a.href="#"+h.id; a.textContent=h.textContent; li.appendChild(a); ul.appendChild(li); });
+    toc.querySelector(".toc-body").appendChild(ul);
+    const key="toc-state:"+location.pathname, preferOpen=matchMedia("(min-width:900px)").matches, saved=localStorage.getItem(key), startOpen=saved? saved==="open" : preferOpen;
+    setExpanded(startOpen);
+    function setExpanded(open){ toc.classList.toggle("collapsed", !open); toc.setAttribute("aria-expanded", String(open)); toc.querySelector(".toc-head").setAttribute("aria-expanded", String(open)); }
+    function toggle(){ const open=toc.classList.contains("collapsed"); setExpanded(open); localStorage.setItem(key, open ? "open" : "closed"); }
+    const head=toc.querySelector(".toc-head"); head.addEventListener("click", toggle);
+    head.addEventListener("keydown", e => { if (e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); }});
+  })();
+
+  // Back-to-Top + Mini progress ring (only mini shows progress)
+  (function () {
+    const btn  = document.getElementById("backTop");
+    const mini = document.getElementById("scrollProgressMini");
+    const miniTxt  = mini?.querySelector(".percent");
+    const miniRing = mini?.querySelector(".ring-fg");
+    if (!btn || !mini || !miniTxt || !miniRing) return;
+
+    // prepare ring
+    const r = parseFloat(miniRing.getAttribute("r") || "19.5");
+    const C = 2 * Math.PI * r;
+    miniRing.style.strokeDasharray = `${C} ${C}`;
+    miniRing.style.strokeDashoffset = `${C}`;
+
+    function setProgress(p){
+      miniRing.style.strokeDashoffset = String(C - (p/100)*C);
+      miniTxt.textContent = p + "%";
+    }
+
+    // place mini just above the card
+    function placeMini(){
+      const gap = 24;
+      const rect = btn.getBoundingClientRect();
+      mini.style.right  = (window.innerWidth  - rect.right) + "px";
+      mini.style.bottom = (window.innerHeight - rect.top + gap) + "px";
+    }
+
+    function update(){
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      const sc  = max > 0 ? Math.round((doc.scrollTop / max) * 100) : 0;
+      setProgress(sc);
+      const show = sc > 3;
+      btn.style.display  = show ? "block" : "none";
+      mini.style.display = show ? "flex"  : "none";
+      if (show) placeMini();
+    }
+
+    window.addEventListener("scroll", update, { passive:true });
+    window.addEventListener("resize", () => { if (mini.style.display !== "none") placeMini(); });
+    update();
+
+    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  })();
+</script>
+
+
+    </main>
+
+    <!-- Cursor CSS + JS (anti-flicker) -->
+    <style>
+  :root{
+    --cursor-normal: url('/assets/images/cursor-normal-32.png') 4 4, auto;
+    --cursor-hover:  url('/assets/images/cursor-hover-32.png') 4 4, auto;
+  }
+
+  /* Mặc định: phủ custom cursor toàn trang (ưu tiên cao) */
+  html, body, * {
+    cursor: var(--cursor-normal) !important;
+  }
+
+  /* Tất cả trạng thái của link & vùng clickable -> dùng hover cursor */
+  a, a *,
+  a:link, a:link *,
+  a:visited, a:visited *,
+  a:hover, a:hover *,
+  a:focus, a:focus *,
+  a:active, a:active *,
+  a:focus-visible, a:focus-visible *,
+  button, button *,
+  [role="button"], [role="button"] *,
+  [onclick], [onclick] *,
+  input[type="button"], input[type="submit"],
+  label[for], summary {
+    cursor: var(--cursor-hover) !important;
+  }
+
+  /* Khi đang giữ chuột / đang điều hướng: ép toàn trang sang hover-cursor */
+  html.is-mousedown *, html.is-mousedown *::before, html.is-mousedown *::after,
+  html.is-mousedown svg, html.is-mousedown svg *,
+  html.is-navigating *, html.is-navigating *::before, html.is-navigating *::after,
+  html.is-navigating svg, html.is-navigating svg *{
+    cursor: var(--cursor-hover) !important;
+  }
+
+  /* Vùng nhập liệu giữ I-beam (kể cả khi mousedown/navigating) */
+  input, textarea, [contenteditable="true"]{
+    cursor: text !important;
+  }
+  html.is-mousedown input,
+  html.is-mousedown textarea,
+  html.is-mousedown [contenteditable="true"],
+  html.is-navigating input,
+  html.is-navigating textarea,
+  html.is-navigating [contenteditable="true"]{
+    cursor: text !important;
+  }
+
+  /* Retina 2x: dùng ảnh 48px, hotspot 6,6 (sắc nét) */
+  @media (min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2){
+    :root{
+      --cursor-normal: url('/assets/images/cursor-normal-48.png') 6 6, auto;
+      --cursor-hover:  url('/assets/images/cursor-hover-48.png') 6 6, auto;
+    }
+  }
+
+  /* Thiết bị cảm ứng: trả về mặc định */
+  @media (pointer: coarse){
+    html, body, *, *::before, *::after{
+      cursor: auto !important;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const root = document.documentElement;
+
+    const addDown = () => root.classList.add('is-mousedown');
+    const rmDown  = () => root.classList.remove('is-mousedown');
+    const addNav  = () => root.classList.add('is-navigating');
+    const rmNav   = () => root.classList.remove('is-navigating');
+
+    /* Dùng capture để chạy TRƯỚC khi UA áp :active */
+    window.addEventListener('mousedown', addDown,   { passive: true, capture: true });
+    window.addEventListener('pointerdown', addDown, { passive: true, capture: true });
+
+    window.addEventListener('mouseup', rmDown,       { passive: true });
+    window.addEventListener('pointerup', rmDown,     { passive: true });
+    window.addEventListener('pointercancel', rmDown, { passive: true });
+    window.addEventListener('dragend', rmDown,       { passive: true });
+
+    /* Click link -> bật cờ điều hướng ngay.
+       Nếu là SPA/preventDefault, gỡ cờ sau 200ms để tránh kẹt trạng thái. */
+    document.addEventListener('click', (e) => {
+      const isLeft = (e.button === 0);
+      const el = e.target.closest('a, [data-href]');
+      if (!el || !isLeft) return;
+
+      if ((el.tagName === 'A' && el.href) || el.hasAttribute('data-href')) {
+        addNav();
+        setTimeout(rmNav, 200);
+      }
+    }, { passive: true, capture: true });
+
+    /* Khi sắp rời trang thực sự */
+    window.addEventListener('beforeunload', addNav, { once: true });
+    window.addEventListener('pagehide',     addNav, { once: true });
+
+    /* Quay lại từ bfcache: dọn lại cờ */
+    window.addEventListener('pageshow', () => { rmDown(); rmNav(); }, { passive: true });
+  })();
+</script>
+
+  </body>
+</html>

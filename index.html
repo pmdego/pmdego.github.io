@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      PMD | PMD • Notes
+    </title>
+
+    <!-- Preload ảnh cursor để load nhanh -->
+    <link rel="preload" href="/assets/images/cursor-normal-32.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-hover-32.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-normal-48.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-hover-48.png" as="image">
+
+    <!-- CSS theme chính -->
+    <link
+      rel="stylesheet"
+      href="/assets/css/style.css?v="
+    />
+
+    <!-- Thêm CSS cho Portfolio -->
+    <link rel="stylesheet" href="/assets/css/portfolio.css">
+
+    <!-- Fallback minimal nếu theme lỗi -->
+    <style>
+      html, body { background:#0b0b0b; color:#eaeaea; margin:0; padding:0; }
+      body {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                     "Liberation Mono","Courier New", monospace;
+      }
+      main img, .markdown-body img,
+      main svg, .markdown-body svg,
+      main canvas, .markdown-body canvas {
+        max-width:100%; height:auto; display:block;
+      }
+      main, .markdown-body, main h1, main h2, main h3 {
+        overflow-wrap:anywhere; word-break:break-word;
+      }
+      main pre, .markdown-body pre {
+        overflow-x:auto; white-space:pre; -webkit-overflow-scrolling:touch;
+      }
+      main table, .markdown-body table {
+        display:block; width:100%; overflow-x:auto;
+      }
+    </style>
+
+    <script>
+  (function () {
+    function setFav(emoji) {
+      let link = document.querySelector(
+        "link#dynamic-favicon[rel='icon']"
+      );
+      if (!link) {
+        link = document.createElement("link");
+        link.id = "dynamic-favicon";
+        link.rel = "icon";
+        link.type = "image/svg+xml";
+        document.head.appendChild(link);
+      }
+
+      const svg =
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>" +
+        "<text x='50' y='70' text-anchor='middle' font-size='90'>" +
+        emoji +
+        "</text>" +
+        "</svg>";
+
+      // Né cache
+      link.href =
+        "data:image/svg+xml," +
+        encodeURIComponent(svg) +
+        "#v=" +
+        Date.now();
+    }
+
+    function pickEmojiFromH1() {
+      const h1 = document.querySelector("main h1, h1");
+      if (!h1) return null;
+      const txt = h1.textContent || "";
+
+      // Unicode property (browser mới)
+      try {
+        const m = txt.match(/\p{Extended_Pictographic}/u);
+        if (m && m[0]) return m[0];
+      } catch (e) {}
+
+      // Fallback dải thường gặp
+      const m2 = txt.match(
+        /[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}]/u
+      );
+      return m2 ? m2[0] : null;
+    }
+
+    function init() {
+      const emoji = pickEmojiFromH1() || "🛡️";
+      setFav(emoji);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+</script>
+
+  </head>
+
+  <body>
+    <!-- Navbar chỉ hiện khi có show_nav: true -->
+    
+
+    <!-- Nội dung chính -->
+    <main class="page-wrap" style="max-width: 980px; margin: 2rem auto; padding: 0 1rem;">
+      <h1 id="-hi-im-pmd">👋 Hi, I’m PMD</h1>
+
+<p>Welcome to <strong>my Notes Blog</strong>!
+Here you’ll find a mix of study notes, pentesting writeups, and (maybe) occasional blog posts if I’m in the mood 😄.</p>
+
+<hr />
+
+<h2 id="-categories">📂 Categories</h2>
+
+<ul>
+  <li>
+    <p><a href="notes/"><strong>Notes</strong></a> – My study notes on OWASP Top 10 and hands-on exploit labs.</p>
+  </li>
+  <li>
+    <p><a href="htb/"><strong>HTB Writeups</strong></a> – Detailed writeups of machines I’ve solved on HTB.</p>
+  </li>
+  <li>
+    <p><a href="posts/"><strong>Blog</strong></a> – Miscellaneous thoughts and technical content (coming soon).</p>
+  </li>
+</ul>
+
+<hr />
+
+<h2 id="-contact">📬 Contact</h2>
+
+<p><strong>GitHub:</strong> 
+  <a href="https://github.com/pmdego" target="_blank" rel="noopener">pmd-007</a>
+</p>
+
+<p><strong>Email:</strong>
+  <span id="email" style="cursor:pointer; color:#007bff; text-decoration:underline;" onclick="copyEmail()">ducminhpham.cyber@gmail.com</span>
+  <span id="copy-msg" style="margin-left:8px; color:green; font-weight:bold; display:none;">✔ Copied!</span>
+</p>
+
+<script>
+function copyEmail() {
+  const email = document.getElementById('email').innerText;
+  navigator.clipboard.writeText(email).then(() => {
+    const msg = document.getElementById('copy-msg');
+    msg.style.display = 'inline';
+    setTimeout(() => {
+      msg.style.display = 'none';
+    }, 1500);
+  });
+}
+</script>
+
+
+    </main>
+
+    <!-- Cursor CSS + JS (anti-flicker) -->
+    <style>
+  :root{
+    --cursor-normal: url('/assets/images/cursor-normal-32.png') 4 4, auto;
+    --cursor-hover:  url('/assets/images/cursor-hover-32.png') 4 4, auto;
+  }
+
+  /* Mặc định: phủ custom cursor toàn trang (ưu tiên cao) */
+  html, body, * {
+    cursor: var(--cursor-normal) !important;
+  }
+
+  /* Tất cả trạng thái của link & vùng clickable -> dùng hover cursor */
+  a, a *,
+  a:link, a:link *,
+  a:visited, a:visited *,
+  a:hover, a:hover *,
+  a:focus, a:focus *,
+  a:active, a:active *,
+  a:focus-visible, a:focus-visible *,
+  button, button *,
+  [role="button"], [role="button"] *,
+  [onclick], [onclick] *,
+  input[type="button"], input[type="submit"],
+  label[for], summary {
+    cursor: var(--cursor-hover) !important;
+  }
+
+  /* Khi đang giữ chuột / đang điều hướng: ép toàn trang sang hover-cursor */
+  html.is-mousedown *, html.is-mousedown *::before, html.is-mousedown *::after,
+  html.is-mousedown svg, html.is-mousedown svg *,
+  html.is-navigating *, html.is-navigating *::before, html.is-navigating *::after,
+  html.is-navigating svg, html.is-navigating svg *{
+    cursor: var(--cursor-hover) !important;
+  }
+
+  /* Vùng nhập liệu giữ I-beam (kể cả khi mousedown/navigating) */
+  input, textarea, [contenteditable="true"]{
+    cursor: text !important;
+  }
+  html.is-mousedown input,
+  html.is-mousedown textarea,
+  html.is-mousedown [contenteditable="true"],
+  html.is-navigating input,
+  html.is-navigating textarea,
+  html.is-navigating [contenteditable="true"]{
+    cursor: text !important;
+  }
+
+  /* Retina 2x: dùng ảnh 48px, hotspot 6,6 (sắc nét) */
+  @media (min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2){
+    :root{
+      --cursor-normal: url('/assets/images/cursor-normal-48.png') 6 6, auto;
+      --cursor-hover:  url('/assets/images/cursor-hover-48.png') 6 6, auto;
+    }
+  }
+
+  /* Thiết bị cảm ứng: trả về mặc định */
+  @media (pointer: coarse){
+    html, body, *, *::before, *::after{
+      cursor: auto !important;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const root = document.documentElement;
+
+    const addDown = () => root.classList.add('is-mousedown');
+    const rmDown  = () => root.classList.remove('is-mousedown');
+    const addNav  = () => root.classList.add('is-navigating');
+    const rmNav   = () => root.classList.remove('is-navigating');
+
+    /* Dùng capture để chạy TRƯỚC khi UA áp :active */
+    window.addEventListener('mousedown', addDown,   { passive: true, capture: true });
+    window.addEventListener('pointerdown', addDown, { passive: true, capture: true });
+
+    window.addEventListener('mouseup', rmDown,       { passive: true });
+    window.addEventListener('pointerup', rmDown,     { passive: true });
+    window.addEventListener('pointercancel', rmDown, { passive: true });
+    window.addEventListener('dragend', rmDown,       { passive: true });
+
+    /* Click link -> bật cờ điều hướng ngay.
+       Nếu là SPA/preventDefault, gỡ cờ sau 200ms để tránh kẹt trạng thái. */
+    document.addEventListener('click', (e) => {
+      const isLeft = (e.button === 0);
+      const el = e.target.closest('a, [data-href]');
+      if (!el || !isLeft) return;
+
+      if ((el.tagName === 'A' && el.href) || el.hasAttribute('data-href')) {
+        addNav();
+        setTimeout(rmNav, 200);
+      }
+    }, { passive: true, capture: true });
+
+    /* Khi sắp rời trang thực sự */
+    window.addEventListener('beforeunload', addNav, { once: true });
+    window.addEventListener('pagehide',     addNav, { once: true });
+
+    /* Quay lại từ bfcache: dọn lại cờ */
+    window.addEventListener('pageshow', () => { rmDown(); rmNav(); }, { passive: true });
+  })();
+</script>
+
+  </body>
+</html>
