@@ -1,0 +1,140 @@
+/* ===== Projects Grid (vibe portfolio, neon xanh) ===== */
+
+/* Grid 3 cột desktop, tự co về 2/1 cột */
+.proj-grid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.2rem;
+}
+@media (max-width: 1100px){ .proj-grid{ grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px){  .proj-grid{ grid-template-columns: 1fr; } }
+
+/* Card tổng: tối, bo nhẹ, glass nhẹ, hover nhô */
+.proj-card{
+  background:#171717;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  box-shadow: 0 6px 22px rgba(0,0,0,.45);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+}
+.proj-card:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0,0,0,.55);
+  border-color: rgba(163,255,18,.18);
+}
+
+/* =======================
+   A) MODE CÓ ẢNH (giữ nguyên)
+   ======================= */
+.proj-card .media{
+  position:relative; display:block; aspect-ratio: 16/9; overflow:hidden;
+  background:#0f0f0f;
+}
+.proj-card .media img{
+  width:100%; height:100%; object-fit:cover; display:block;
+  transition: transform .35s ease, filter .35s ease;
+}
+.proj-card:hover .media img{ transform: scale(1.03); }
+
+/* Badge đặt trên ảnh (khi có .media) */
+.badge--neon{
+  position:absolute; left:12px; top:12px;
+  background: linear-gradient(90deg, #a3ff12, #63ff6b);
+  color:#0b0b0b; font-weight:800; letter-spacing:.2px;
+  padding:.28rem .55rem; border-radius:999px; font-size:.76rem;
+  box-shadow:0 6px 18px rgba(163,255,18,.35);
+}
+
+/* =========================
+   B) MODE KHÔNG ẢNH (mặc định hiện tại)
+   - Tự nhận diện bằng :has() nếu trình duyệt hỗ trợ
+   - Hoặc bạn có thể thêm class .no-media vào .proj-card
+   ========================= */
+
+/* Fallback class thủ công (bạn không cần thêm gì nếu dùng :has) */
+.proj-card.no-media{ padding-top: 1rem; }
+.proj-card.no-media .badge--neon{
+  position: static;
+  margin: 0.25rem 1rem 0.4rem 1rem;
+  display: inline-block;
+}
+
+/* Tự phát hiện KHÔNG có .media (Chrome/Safari hỗ trợ tốt) */
+.proj-card:not(:has(.media)){ padding-top: 1rem; }
+.proj-card:not(:has(.media)) .badge--neon{
+  position: static;
+  margin: 0.25rem 1rem 0.4rem 1rem;
+  display: inline-block;
+}
+
+/* Body */
+.proj-card .body{
+  padding: .9rem 1rem 1rem;
+  display:flex; flex-direction:column; height:100%;
+}
+
+/* Header (title + năm) */
+.proj-card .head{
+  display:flex; align-items:center; justify-content:space-between; gap:.6rem; min-height:2.4rem;
+}
+.proj-card .title{ margin:0; line-height:1.25; font-size:1.15rem; }
+.proj-card .title a{
+  color:#b6ff3b; text-decoration:none;
+  display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.proj-card .title a:hover{ text-shadow:0 0 6px rgba(163,255,18,.4); }
+
+.year-pill{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width: 3rem; min-height: 1.6rem; padding:.12rem .5rem;
+  border-radius:999px; background:rgba(255,255,255,.08); color:#cfcfcf; font-weight:700;
+  border:1px solid rgba(255,255,255,.12);
+}
+
+/* Mô tả clamp 3 dòng */
+.proj-card .desc{
+  color:#cfd8dc; margin:.45rem 0 .7rem;
+  display:-webkit-box; -webkit-line-clamp:3; line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+}
+
+/* Meta: time + CTA đẩy hai đầu */
+.proj-card .meta{
+  display:flex; align-items:center; justify-content:space-between; gap:.6rem;
+  margin-top:auto;  /* đẩy meta xuống gần đáy */
+}
+.proj-card time{ color:#98a6ad; font-size:.9rem; }
+.proj-card .cta{
+  color:#a3ff12; text-decoration:none; font-weight:800; letter-spacing:.2px;
+  border:1px solid rgba(163,255,18,.35);
+  padding:.35rem .65rem; border-radius:10px;
+  background: linear-gradient(180deg, rgba(163,255,18,.12), rgba(163,255,18,.04));
+  box-shadow: 0 4px 14px rgba(163,255,18,.18);
+  transition: transform .15s ease, box-shadow .15s ease, background .2s ease, border-color .2s ease;
+}
+.proj-card .cta:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(163,255,18,.28);
+  background: linear-gradient(180deg, rgba(163,255,18,.18), rgba(163,255,18,.06));
+  border-color: rgba(163,255,18,.55);
+}
+
+/* Tags ở đáy */
+.proj-card .tags{ margin-top:.7rem; display:flex; gap:.35rem; flex-wrap:wrap; }
+.proj-card .tag{
+  font-size:.75rem; padding:.18rem .45rem; border-radius:999px;
+  background: rgba(163,255,18,.12); color:#a3ff12; border:1px solid rgba(163,255,18,.25);
+}
+
+/* Focus accessibility */
+.proj-card a:focus-visible{
+  outline:none;
+  box-shadow: 0 0 0 2px #0b0b0b, 0 0 0 4px rgba(163,255,18,.6);
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .proj-card, .proj-card .media img, .proj-card .cta { transition:none !important; }
+}

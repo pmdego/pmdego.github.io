@@ -1,0 +1,37 @@
+:root {
+  --cursor-normal: url('/assets/images/cursor-normal-32.png') 4 4, auto;
+  --cursor-hover:  url('/assets/images/cursor-hover-32.png') 4 4, auto;
+}
+
+/* Cursor mặc định toàn site */
+*, *::before, *::after,
+svg, svg * {
+  cursor: var(--cursor-normal) !important;
+}
+
+/* Hover và active states */
+a, a *, 
+a:link, a:visited, a:hover, a:focus, a:active, a:focus-visible,
+button, button *,
+[role="button"], [role="button"] *,
+[onclick], [onclick] * {
+  cursor: var(--cursor-hover) !important;
+}
+
+/* Khi click hoặc điều hướng */
+html.is-mousedown *, html.is-navigating * {
+  cursor: var(--cursor-hover) !important;
+}
+
+/* Input giữ text */
+input, textarea, [contenteditable="true"] {
+  cursor: text !important;
+}
+
+/* Retina 2x */
+@media (min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2) {
+  :root {
+    --cursor-normal: url('/assets/images/cursor-normal-48.png') 6 6, auto;
+    --cursor-hover:  url('/assets/images/cursor-hover-48.png') 6 6, auto;
+  }
+}

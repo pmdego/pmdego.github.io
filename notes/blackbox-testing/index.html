@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Black-box Testing | PMD • Notes
+    </title>
+
+    <!-- Preload ảnh cursor để load nhanh -->
+    <link rel="preload" href="/assets/images/cursor-normal-32.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-hover-32.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-normal-48.png" as="image">
+    <link rel="preload" href="/assets/images/cursor-hover-48.png" as="image">
+
+    <!-- CSS theme chính -->
+    <link
+      rel="stylesheet"
+      href="/assets/css/style.css?v="
+    />
+
+    <!-- Thêm CSS cho Portfolio -->
+    <link rel="stylesheet" href="/assets/css/portfolio.css">
+
+    <!-- Fallback minimal nếu theme lỗi -->
+    <style>
+      html, body { background:#0b0b0b; color:#eaeaea; margin:0; padding:0; }
+      body {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                     "Liberation Mono","Courier New", monospace;
+      }
+      main img, .markdown-body img,
+      main svg, .markdown-body svg,
+      main canvas, .markdown-body canvas {
+        max-width:100%; height:auto; display:block;
+      }
+      main, .markdown-body, main h1, main h2, main h3 {
+        overflow-wrap:anywhere; word-break:break-word;
+      }
+      main pre, .markdown-body pre {
+        overflow-x:auto; white-space:pre; -webkit-overflow-scrolling:touch;
+      }
+      main table, .markdown-body table {
+        display:block; width:100%; overflow-x:auto;
+      }
+    </style>
+
+    <script>
+  (function () {
+    function setFav(emoji) {
+      let link = document.querySelector(
+        "link#dynamic-favicon[rel='icon']"
+      );
+      if (!link) {
+        link = document.createElement("link");
+        link.id = "dynamic-favicon";
+        link.rel = "icon";
+        link.type = "image/svg+xml";
+        document.head.appendChild(link);
+      }
+
+      const svg =
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>" +
+        "<text x='50' y='70' text-anchor='middle' font-size='90'>" +
+        emoji +
+        "</text>" +
+        "</svg>";
+
+      // Né cache
+      link.href =
+        "data:image/svg+xml," +
+        encodeURIComponent(svg) +
+        "#v=" +
+        Date.now();
+    }
+
+    function pickEmojiFromH1() {
+      const h1 = document.querySelector("main h1, h1");
+      if (!h1) return null;
+      const txt = h1.textContent || "";
+
+      // Unicode property (browser mới)
+      try {
+        const m = txt.match(/\p{Extended_Pictographic}/u);
+        if (m && m[0]) return m[0];
+      } catch (e) {}
+
+      // Fallback dải thường gặp
+      const m2 = txt.match(
+        /[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}]/u
+      );
+      return m2 ? m2[0] : null;
+    }
+
+    function init() {
+      const emoji = pickEmojiFromH1() || "🛡️";
+      setFav(emoji);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+</script>
+
+  </head>
+
+  <body>
+    <!-- Navbar chỉ hiện khi có show_nav: true -->
+    
+
+    <!-- Nội dung chính -->
+    <main class="page-wrap" style="max-width: 980px; margin: 2rem auto; padding: 0 1rem;">
+      
+
+
+<!-- Breadcrumb -->
+<div class="breadcrumbs">
+  <a href="/">🏠 Home</a>
+  &nbsp;/&nbsp;
+  <a href="/notes/">📓 Notes</a>
+  
+    &nbsp;/&nbsp;<span>Black-box Testing</span>
+  
+</div>
+
+<main>
+  
+    <!-- TOC -->
+    <nav id="toc" class="toc collapsed" aria-expanded="false" aria-controls="toc-body">
+      <div class="toc-head" role="button" aria-expanded="false" tabindex="0">
+        <span class="toc-caret">▸</span>
+        <strong>Contents</strong>
+      </div>
+      <div id="toc-body" class="toc-body"></div>
+    </nav>
+  
+
+  <h1 id="️-black-box-testing--pentest-khi-không-có-đèn-pin">🕵️ Black-box Testing – Pentest khi không có đèn pin</h1>
+
+<hr />
+
+<h2 id="1-tổng-quan-về-các-phương-thức-pentest">1) Tổng quan về các phương thức pentest</h2>
+
+<p>Pentest có nhiều “trường phái” tùy vào <strong>lượng thông tin</strong> pentester có trong tay:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>White-box  [ ██████ ]   → Có nhiều info (source code, config, account test…)
+Gray-box   [ ███░░░ ]   → Có một phần info (VD: chỉ có user test)
+Black-box  [ ░░░░░░ ]   → Không có info, chỉ có URL → đúng chất hacker ngoài đời
+</code></pre></div></div>
+
+<p><strong>Thông tin</strong> có thể là:</p>
+
+<ol>
+  <li>Source code</li>
+  <li>Kiến trúc hệ thống / network topology</li>
+  <li>Cấu hình (config)</li>
+  <li>Testing account (user, admin)</li>
+  <li>Môi trường (docker, debug setup…)</li>
+</ol>
+
+<hr />
+
+<h2 id="2-ưu--nhược-của-white-box-vs-black-box">2) Ưu &amp; nhược của White-box vs Black-box</h2>
+
+<h3 id="white-box-thấy-rõ-mê-cung-bên-trong">White-box (thấy rõ mê cung bên trong)</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Input →
+┌───────────────────────┐
+│ ┌───┐ ┌─────┐ ┌─────┐ │
+│ │   │ │ ┌─┐ │ │     │ │
+│ │ ┌─┘ │ │ │ │ └─┐ ┌─┘ │
+│ │ │   │ │ │ │   │ │   │
+│ │ │ ┌─┘ │ └─┘ ┌─┘ └─┐ │
+│ │ │ │   │     │     │ │
+│ │ └─┘ ┌─┘ ┌───┘ ┌───┘ │
+│ │     │   │     │     │
+│ └─────┘ ┌─┘ ┌───┘ ┌───┤
+│         │   │     │ O │ → Output
+└─────────┴───┴─────┴───┘
+</code></pre></div></div>
+
+<ul>
+  <li>Có nhiều (hoặc toàn bộ) thông tin</li>
+  <li>Quyền truy cập lớn → debug, đọc log</li>
+  <li>Dò lỗi nhanh, quét kỹ được logic bên trong</li>
+</ul>
+
+<h3 id="black-box-hộp-đen-kín-mít">Black-box (hộp đen kín mít)</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Input →
+░░░░░░░░░░░░░░░░░░░░░
+░░░░░░░░░░░░░░░░░░░░░
+░░░░░░░░░░░░░░░░░░░░░
+░░░░░░░░░░░░░░░░░░░░░
+░░░░░░░░░░░░░░░░░░░░░
+→ Output
+</code></pre></div></div>
+
+<ul>
+  <li>Không có info</li>
+  <li>Bị hạn chế quyền, phải “thử &amp; sai”</li>
+  <li>Dựa vào quan sát kết quả → đoán bug</li>
+</ul>
+
+<p>👉 Tóm gọn:
+Black-box giống như <strong>đưa input bất kỳ</strong> vào ứng dụng rồi quan sát output để đưa ra “dự đoán có học” (educated guess) xem có bug hay không.</p>
+
+<p>Ví dụ:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?id=1337'
+→ ERROR: SQL syntax
+</code></pre></div></div>
+
+<p>→ Có mùi SQLi ngay 👀</p>
+
+<hr />
+
+<h2 id="3-black-box-testing-giống-gì-với-khám-bệnh-">3) Black-box Testing giống gì với khám bệnh 🩺</h2>
+
+<p>Black-box testing cũng giống bác sĩ chẩn đoán bệnh:</p>
+
+<ul>
+  <li>Không thấy bên trong cơ thể → chỉ dựa vào <strong>triệu chứng &amp; dấu hiệu</strong></li>
+  <li>Thiếu thông tin → phải dựa vào <strong>kinh nghiệm + xét nghiệm</strong> để kết luận</li>
+</ul>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Triệu chứng → [ 👨‍⚕️ Bác sĩ ] → Kết luận
+   Input     → [ Pentester  ] → Bug ?
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="4-quy-trình-4-bước-black-box-testing">4) Quy trình 4 bước Black-box Testing</h2>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1) Đánh giá sơ bộ
+   - Liệt kê chức năng: login, upload, logging...
+   - Đoán bug có thể: login → SQLi, upload → file upload, logging → command injection
+       ↓
+2) Giả thuyết &amp; quan sát dấu hiệu
+   - Input → quan sát lỗi, data lạ, time delay...
+       ↓
+3) Kiểm tra chi tiết (xét nghiệm)
+   - Payload cụ thể → kiểm chứng giả thuyết
+       ↓
+4) Kết luận sơ bộ
+   - Có bug → note lại
+   - Không → quay lại bước 2
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="5-dấu-hiệu-cần-chú-ý-">5) Dấu hiệu cần chú ý 👀</h2>
+
+<p>Khi test Black-box, hãy soi:</p>
+
+<ul>
+  <li><strong>Error messages</strong> (lỗi SQL, stack trace…)</li>
+  <li><strong>Unexpected data</strong> (trả về thêm thông tin lạ)</li>
+  <li><strong>Time response bất thường</strong> (delay → có thể time-based injection)</li>
+  <li><strong>Unexpected behavior</strong> (app hoạt động khác so với bình thường)</li>
+</ul>
+
+<hr />
+
+<h2 id="6-một-số-tip--trick">6) Một số Tip &amp; Trick</h2>
+
+<ul>
+  <li>Luôn để ý <strong>untrusted data</strong>: GET/POST params, cookie, filename…</li>
+  <li>Cẩn thận với <strong>dấu hiệu mờ nhạt</strong>, dễ nhầm với bug khác</li>
+  <li>Đừng chỉ nhìn bug → hãy nhìn bức tranh tổng thể input/output</li>
+  <li>Hack là khai thác hành vi → hiểu hành vi trước thì mới tìm bug chuẩn</li>
+  <li>Chức năng phức tạp thì take note, có thể quay lại sau</li>
+  <li>Yếu tố <strong>may mắn</strong> cũng đóng vai trò khi làm black-box 😅</li>
+</ul>
+
+<hr />
+
+<h2 id="7-đúc-kết-">7) Đúc kết 📝</h2>
+
+<p>Black-box Testing là khi:</p>
+
+<ol>
+  <li>Không có thông tin, chỉ có input/output</li>
+  <li>Quan sát kỹ để tìm ra <strong>dấu hiệu bất thường</strong></li>
+  <li>Đặt giả thuyết bug → kiểm chứng bằng payload</li>
+  <li>Ghi chú &amp; loại trừ trường hợp sai</li>
+  <li>Lặp lại cho đến khi chắc chắn</li>
+</ol>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Input → [ Hộp đen ??? ] → Output
+         ↑    quan sát   ↓
+        giả thuyết ← test
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="8-tham-khảo">8) Tham khảo</h2>
+
+<ul>
+  <li><a href="https://github.com/payloadbox/sql-injection-payload-list/blob/master/Intruder/detect/Generic_TimeBased.txt">SQLi Time-based Payloads – PayloadBox</a></li>
+  <li>OWASP Testing Guide</li>
+  <li>PortSwigger Web Security Academy</li>
+</ul>
+
+</main>
+
+
+  <!-- Back -->
+  <p style="margin-top: 2rem; text-align: center;">
+    <a href="/notes/" class="back-notes">⬅ Back to Notes</a>
+  </p>
+
+
+<!-- ===== Shared Styles (no Liquid inside) ===== -->
+<style>
+  :root{
+    --bar-h: 48px;
+    --btn-w: 78px; --btn-h: 112px; --btn-right: 22px; --btn-bottom: 22px;
+  }
+  @media (max-width:480px){
+    :root{ --btn-w:66px; --btn-h:98px; --btn-right:16px; --btn-bottom:16px; }
+  }
+
+  /* Breadcrumb */
+  .breadcrumbs{
+    position: sticky; top: 0; z-index: 1000;
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .4rem .8rem; margin: .75rem 0 1rem;
+    background:#111; border:1px solid #0f0; border-radius:9999px;
+    box-shadow:0 0 6px rgba(0,255,0,.25); max-width:100%; overflow:auto;
+  }
+  .breadcrumbs a{ color:#4af; text-decoration:none; font-weight:600; }
+  .breadcrumbs span{ color:#fff; font-weight:700; }
+
+  main h2, main h3{ scroll-margin-top: calc(var(--bar-h) + 12px); }
+
+  /* TOC */
+  .toc{
+    border-left:3px solid #6f6; margin:.5rem 0 1.2rem; background:#0b0b0b;
+    border-radius:8px; box-shadow:0 0 6px rgba(0,255,0,.15); overflow:hidden;
+  }
+  .toc-head{ display:flex; align-items:center; gap:.5rem; padding:.55rem .9rem; cursor:pointer; user-select:none; }
+  .toc-caret{ transition: transform .2s; }
+  .toc[aria-expanded="true"] .toc-caret,.toc:not(.collapsed) .toc-caret{ transform: rotate(90deg); }
+  .toc-body{ overflow:hidden; max-height:0; transition:max-height .25s, padding .25s; padding:0 .9rem; }
+  .toc:not(.collapsed) .toc-body{ padding:.2rem .9rem .8rem; max-height:1200px; }
+  .toc-body ul{ list-style:none; padding:0; margin:0; }
+  .toc-body li{ margin:.2rem 0; }
+  .toc-body li[data-level="3"]{ margin-left:1rem; }
+
+  /* Back link pill */
+  .back-notes{
+    display:inline-block; padding:.6rem 1.2rem; border:1px solid #0f0; border-radius:9999px;
+    color:#4af; text-decoration:none; font-weight:600; background:#111; box-shadow:0 0 6px rgba(0,255,0,.25);
+    transition:all .25s;
+  }
+  .back-notes:hover{ background:#0f0; color:#111; }
+
+  /* ===== Back-to-Top Cyberpunk (NO progress inside) ===== */
+  #backTop{
+    position: fixed; right: var(--btn-right); bottom: var(--btn-bottom); z-index: 9999;
+    width: var(--btn-w); height: var(--btn-h); border-radius: 14px; cursor: pointer;
+    background: linear-gradient(180deg,#0b0b0b 0%, #050505 100%);
+    border: 2px solid transparent;
+    box-shadow: 0 0 14px rgba(0,255,170,.45),
+                0 0 26px rgba(0,140,255,.35),
+                inset 0 0 12px rgba(0,255,170,.08);
+    display: none; opacity:.98;
+    animation: floatCard 3s ease-in-out infinite;
+    transition: transform .25s, box-shadow .25s, opacity .25s, filter .25s;
+  }
+  #backTop::before{
+    content:""; position:absolute; inset:-2px; border-radius:16px; z-index:-1;
+    background:conic-gradient(from 0deg,#00ffa6,#00b7ff,#ff2bd6,#00ffa6);
+    filter:blur(6px) saturate(1.4);
+    transition:transform 1.5s linear, filter .5s;
+  }
+  #backTop:hover{
+    box-shadow: 0 0 18px rgba(0,255,170,.65),
+                0 0 36px rgba(0,140,255,.55),
+                inset 0 0 14px rgba(0,255,170,.12);
+    filter:brightness(1.06) contrast(1.08) saturate(1.12);
+    animation:shake .45s cubic-bezier(.36,.07,.19,.97) both, floatCard 3s ease-in-out infinite .45s;
+  }
+  #backTop:hover::before{ transform: rotate(360deg); filter: hue-rotate(360deg) blur(6px) saturate(1.4); }
+  #backTop .arrow{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:26px; color:#fff; text-shadow:0 0 8px rgba(0,255,170,.9),0 0 16px rgba(0,140,255,.7);
+    pointer-events:none;
+  }
+
+  /* ===== Mini progress ring (only one we keep) ===== */
+  #scrollProgressMini{
+    position: fixed;
+    right: 22px; bottom: 150px; /* tạm; JS sẽ đặt lại theo #backTop */
+    width: 52px; height: 52px;
+    display: none; align-items: center; justify-content: center;
+    border-radius: 50%; background: #0b0b0b;
+    box-shadow: 0 0 8px rgba(0,255,170,.4), 0 0 16px rgba(0,140,255,.3);
+    z-index: 9999;
+  }
+  #scrollProgressMini .ring{ position:absolute; inset:4px; transform: rotate(-90deg); }
+  #scrollProgressMini .ring-bg{ fill:none; stroke:rgba(255,255,255,.18); stroke-width:4; }
+  #scrollProgressMini .ring-fg{
+    fill:none; stroke:#a3ff12; stroke-width:4; stroke-linecap:round;
+    stroke-dasharray:1 120; stroke-dashoffset:0;
+    filter:drop-shadow(0 0 4px rgba(163,255,18,.7));
+  }
+  #scrollProgressMini .percent{
+    position:relative; font-size:.72rem; font-weight:800; color:#a3ff12; text-shadow:0 0 4px rgba(163,255,18,.6);
+  }
+  @media (max-width:480px){
+    #scrollProgressMini{ width:46px; height:46px; }
+    #scrollProgressMini .percent{ font-size:.68rem; }
+    #scrollProgressMini .ring{ inset:3px; }
+  }
+
+  /* Animations */
+  @keyframes floatCard{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes shake{ 10%,90%{transform:translate3d(-1px,0,0)} 20%,80%{transform:translate3d(2px,0,0)} 30%,50%,70%{transform:translate3d(-3px,0,0)} 40%,60%{transform:translate3d(3px,0,0)} }
+</style><style>.page-header .project-name, .page-header .project-tagline{ display:none; }</style><!-- Back-to-Top card (no progress inside) -->
+<button id="backTop" type="button" title="Back to top" aria-label="Back to top">
+  <span class="arrow">▲</span>
+</button>
+
+<!-- Mini progress ring above the card -->
+<div id="scrollProgressMini" aria-hidden="true" title="Scroll progress">
+  <svg class="ring" viewBox="0 0 44 44" width="44" height="44">
+    <circle class="ring-bg" cx="22" cy="22" r="19.5"></circle>
+    <circle class="ring-fg" cx="22" cy="22" r="19.5"></circle>
+  </svg>
+  <span class="percent">0%</span>
+</div>
+
+<script>
+  /* Dedupe: remove duplicated includes if any */
+  (function(){['#backTop','#scrollProgressMini'].forEach(sel=>{
+    const nodes=document.querySelectorAll(sel); if(nodes.length>1) nodes.forEach((el,i)=>{ if(i>0) el.remove(); });
+  });})();
+
+  // Build TOC (unchanged)
+  (function () {
+    const toc = document.getElementById("toc"); if (!toc) return;
+    const heads = [...document.querySelectorAll("main h2, main h3")];
+    if (!heads.length) { toc.remove(); return; }
+    heads.forEach(h => { if (!h.id) h.id = h.textContent.trim().toLowerCase().replace(/[^\w\- ]+/g,"").replace(/\s+/g,"-"); });
+    const ul = document.createElement("ul");
+    heads.forEach(h => { const li=document.createElement("li"); li.setAttribute("data-level", h.tagName==="H3"?"3":"2"); const a=document.createElement("a"); a.href="#"+h.id; a.textContent=h.textContent; li.appendChild(a); ul.appendChild(li); });
+    toc.querySelector(".toc-body").appendChild(ul);
+    const key="toc-state:"+location.pathname, preferOpen=matchMedia("(min-width:900px)").matches, saved=localStorage.getItem(key), startOpen=saved? saved==="open" : preferOpen;
+    setExpanded(startOpen);
+    function setExpanded(open){ toc.classList.toggle("collapsed", !open); toc.setAttribute("aria-expanded", String(open)); toc.querySelector(".toc-head").setAttribute("aria-expanded", String(open)); }
+    function toggle(){ const open=toc.classList.contains("collapsed"); setExpanded(open); localStorage.setItem(key, open ? "open" : "closed"); }
+    const head=toc.querySelector(".toc-head"); head.addEventListener("click", toggle);
+    head.addEventListener("keydown", e => { if (e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); }});
+  })();
+
+  // Back-to-Top + Mini progress ring (only mini shows progress)
+  (function () {
+    const btn  = document.getElementById("backTop");
+    const mini = document.getElementById("scrollProgressMini");
+    const miniTxt  = mini?.querySelector(".percent");
+    const miniRing = mini?.querySelector(".ring-fg");
+    if (!btn || !mini || !miniTxt || !miniRing) return;
+
+    // prepare ring
+    const r = parseFloat(miniRing.getAttribute("r") || "19.5");
+    const C = 2 * Math.PI * r;
+    miniRing.style.strokeDasharray = `${C} ${C}`;
+    miniRing.style.strokeDashoffset = `${C}`;
+
+    function setProgress(p){
+      miniRing.style.strokeDashoffset = String(C - (p/100)*C);
+      miniTxt.textContent = p + "%";
+    }
+
+    // place mini just above the card
+    function placeMini(){
+      const gap = 24;
+      const rect = btn.getBoundingClientRect();
+      mini.style.right  = (window.innerWidth  - rect.right) + "px";
+      mini.style.bottom = (window.innerHeight - rect.top + gap) + "px";
+    }
+
+    function update(){
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      const sc  = max > 0 ? Math.round((doc.scrollTop / max) * 100) : 0;
+      setProgress(sc);
+      const show = sc > 3;
+      btn.style.display  = show ? "block" : "none";
+      mini.style.display = show ? "flex"  : "none";
+      if (show) placeMini();
+    }
+
+    window.addEventListener("scroll", update, { passive:true });
+    window.addEventListener("resize", () => { if (mini.style.display !== "none") placeMini(); });
+    update();
+
+    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  })();
+</script>
+
+
+    </main>
+
+    <!-- Cursor CSS + JS (anti-flicker) -->
+    <style>
+  :root{
+    --cursor-normal: url('/assets/images/cursor-normal-32.png') 4 4, auto;
+    --cursor-hover:  url('/assets/images/cursor-hover-32.png') 4 4, auto;
+  }
+
+  /* Mặc định: phủ custom cursor toàn trang (ưu tiên cao) */
+  html, body, * {
+    cursor: var(--cursor-normal) !important;
+  }
+
+  /* Tất cả trạng thái của link & vùng clickable -> dùng hover cursor */
+  a, a *,
+  a:link, a:link *,
+  a:visited, a:visited *,
+  a:hover, a:hover *,
+  a:focus, a:focus *,
+  a:active, a:active *,
+  a:focus-visible, a:focus-visible *,
+  button, button *,
+  [role="button"], [role="button"] *,
+  [onclick], [onclick] *,
+  input[type="button"], input[type="submit"],
+  label[for], summary {
+    cursor: var(--cursor-hover) !important;
+  }
+
+  /* Khi đang giữ chuột / đang điều hướng: ép toàn trang sang hover-cursor */
+  html.is-mousedown *, html.is-mousedown *::before, html.is-mousedown *::after,
+  html.is-mousedown svg, html.is-mousedown svg *,
+  html.is-navigating *, html.is-navigating *::before, html.is-navigating *::after,
+  html.is-navigating svg, html.is-navigating svg *{
+    cursor: var(--cursor-hover) !important;
+  }
+
+  /* Vùng nhập liệu giữ I-beam (kể cả khi mousedown/navigating) */
+  input, textarea, [contenteditable="true"]{
+    cursor: text !important;
+  }
+  html.is-mousedown input,
+  html.is-mousedown textarea,
+  html.is-mousedown [contenteditable="true"],
+  html.is-navigating input,
+  html.is-navigating textarea,
+  html.is-navigating [contenteditable="true"]{
+    cursor: text !important;
+  }
+
+  /* Retina 2x: dùng ảnh 48px, hotspot 6,6 (sắc nét) */
+  @media (min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2){
+    :root{
+      --cursor-normal: url('/assets/images/cursor-normal-48.png') 6 6, auto;
+      --cursor-hover:  url('/assets/images/cursor-hover-48.png') 6 6, auto;
+    }
+  }
+
+  /* Thiết bị cảm ứng: trả về mặc định */
+  @media (pointer: coarse){
+    html, body, *, *::before, *::after{
+      cursor: auto !important;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const root = document.documentElement;
+
+    const addDown = () => root.classList.add('is-mousedown');
+    const rmDown  = () => root.classList.remove('is-mousedown');
+    const addNav  = () => root.classList.add('is-navigating');
+    const rmNav   = () => root.classList.remove('is-navigating');
+
+    /* Dùng capture để chạy TRƯỚC khi UA áp :active */
+    window.addEventListener('mousedown', addDown,   { passive: true, capture: true });
+    window.addEventListener('pointerdown', addDown, { passive: true, capture: true });
+
+    window.addEventListener('mouseup', rmDown,       { passive: true });
+    window.addEventListener('pointerup', rmDown,     { passive: true });
+    window.addEventListener('pointercancel', rmDown, { passive: true });
+    window.addEventListener('dragend', rmDown,       { passive: true });
+
+    /* Click link -> bật cờ điều hướng ngay.
+       Nếu là SPA/preventDefault, gỡ cờ sau 200ms để tránh kẹt trạng thái. */
+    document.addEventListener('click', (e) => {
+      const isLeft = (e.button === 0);
+      const el = e.target.closest('a, [data-href]');
+      if (!el || !isLeft) return;
+
+      if ((el.tagName === 'A' && el.href) || el.hasAttribute('data-href')) {
+        addNav();
+        setTimeout(rmNav, 200);
+      }
+    }, { passive: true, capture: true });
+
+    /* Khi sắp rời trang thực sự */
+    window.addEventListener('beforeunload', addNav, { once: true });
+    window.addEventListener('pagehide',     addNav, { once: true });
+
+    /* Quay lại từ bfcache: dọn lại cờ */
+    window.addEventListener('pageshow', () => { rmDown(); rmNav(); }, { passive: true });
+  })();
+</script>
+
+  </body>
+</html>
